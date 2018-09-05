@@ -2,6 +2,8 @@
 """
 Created on Tue Sep  4 10:12:55 2018
 
+this decode.py contains the degbug message
+
 @author: robot
 """
 
@@ -278,14 +280,14 @@ class Decode:
                 break
 #            print('circleTime = ', circleTime)
 #            print('decodeTime = ', self.decodeTime)
-#            circleTime += 1 
+            circleTime += 1 
 #            if circleTime > 3000:
-#                break            
+#                break
+            
 #            print(self.cmpltLst)
         if not validStateBool:
             cal_type = CalType['stateInvalidCond']
 #        print(cal_type)
-        
         fitness = 100
         return cal_type,fitness
 #            break
@@ -410,7 +412,7 @@ if __name__ =='__main__':
 #        print(')__))JHJKHJKHGKJH')
     
     decode = Decode('./data//s100_20_50_max100_2.5_0.02_0.02_1.2_thre0.1_MPDAins.dat')
-    for i in range(100):
+    for i in range(1):
         random.seed(i)
         print('seed = ',i)
         decode.generateRandEncode()

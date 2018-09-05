@@ -36,6 +36,10 @@ class Task():
     def calExecuteDur(self):
 #        print(self.threhod)
         e_dur = math.log(self.threhod/self.cState)/self.cRate
+#        print(self.threhod)
+#        print(self.cState)
+        if e_dur <0:
+            print('bug dur')
         return e_dur
 # =============================================================================
 # valid = false means that  cState is too high can not figure out

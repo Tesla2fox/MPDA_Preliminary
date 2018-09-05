@@ -35,13 +35,13 @@ if __name__ == '__main__':
     randomSeed = 100
     random.seed(randomSeed)
     
-    robNum = 6
-    tskNum = 8
+    robNum = 20
+    tskNum = 50
     max_cordx = 100
     max_cordy = 100
     max_vel = 2.5
-    max_abi = 1.2
-    max_rat = 1.2
+    max_abi = 0.02
+    max_rat = 0.02
     max_state = 1.2
     comp_threhold = 0.1
     
@@ -71,7 +71,10 @@ if __name__ == '__main__':
         tsk_x = random.randint(0,max_cordx)
         tsk_y = random.randint(0,max_cordy)
         tskPosLst.append((tsk_x,tsk_y))
-        tsk_s = random.random() * max_state
+        while True:            
+            tsk_s = random.random() * max_state
+            if tsk_s > comp_threhold:
+                break
         tskStateLst.append(tsk_s)
         tsk_rat = random.random() * max_rat
         tskRatLst.append(tsk_rat)        
