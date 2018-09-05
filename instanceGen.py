@@ -35,8 +35,8 @@ if __name__ == '__main__':
     randomSeed = 100
     random.seed(randomSeed)
     
-    robNum = 8
-    tskNum = 10
+    robNum = 6
+    tskNum = 8
     max_cordx = 100
     max_cordy = 100
     max_vel = 2.5
@@ -107,7 +107,7 @@ if __name__ == '__main__':
     sep = '_'
     sep = sep.join(nameLst)
     insFileDir = './data//'
-    insFileName = insFileDir + sep +'_MPDAins.txt'
+    insFileName = insFileDir + sep +'_MPDAins.dat'
     
     print(repr(insFileName))
     f_ins  = open(insFileName,'w')
