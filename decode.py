@@ -12,7 +12,8 @@ import random
 from robot import *
 from enum import Enum
 import sys
-
+from timeit import timeit
+import time
 
 class CalType(Enum):
     arriveCond = 1
@@ -53,21 +54,16 @@ class Decode:
 
         self.encode = np.zeros((self.robNum,self.taskNum),dtype =int)
 
-        print(self.taskDisMat)
-        print(self.taskStateLst)
+#        print(self.taskDisMat)
+#        print(self.taskStateLst)
         self.taskLst = []
         self.robotLst = []
         self.cmpltLst = []
-        self.decodeTime = 0 
-       
+        self.decodeTime = 0        
         self.insFileName = insFileName
 # =============================================================================
 #  deg2 is for the decode process
 # =============================================================================
-        degFileDir = './debug//'
-        ins = insFileName.split('data//')
-        degFileName = degFileDir + 'deg2_' + ins[1]
-        self.deg2 = open(degFileName,'w')        
         
     def generateRandEncode(self):
 #        random.shuffle(permLst)
@@ -86,34 +82,38 @@ class Decode:
         ins = self.insFileName.split('data//')
         degFileName = degFileDir + 'deg_' + ins[1]
         self.deg = open(degFileName,'w') 
+        
+        degFileDir = './debug//'
+        ins = self.insFileName.split('data//')
+        degFileName = degFileDir + 'deg2_' + ins[1]
+        self.deg2 = open(degFileName,'w')        
+
         while True:
-            print('whileCircle = ',circleTime)
-            circleTime += 1
-            self.saveEncode()            
+#            print('whileCircle = ',circleTime)
+#            circleTime += 1
+#            self.saveEncode()            
             self.initStates()
-            cal_type,fitness = self.decodeProcessor()
-#            if cal_type == CalType['leaveCond']:
-#                break
-#            if cal_type == CalType['endCond']:
-#                break
-#            if cal_type == CalType['stateInvalidCond']:
-#                break
-            self.saveEncode()
+            cal_type = self.decodeProcessor()
+#            self.saveEncode()
             if cal_type == CalType['backCond']:
 #                break
                 continue
             else:
                 break
-            print(self.cmpltLst)
+#            print(self.cmpltLst)
         if cal_type == CalType.stateInvalidCond:
             print('invalidState')
+            makespan = sys.float_info.max
         else:
             print('validState')
-            pass
+            makespan = self.calMakespan()
+        
+#            pass
 #            while True:
-#                print('0-0')
-            
+#                print('0-0')            
         self.deg.close()
+        self.deg2.close()
+        return makespan
     def initStates(self):
         self.taskLst.clear()
         self.robotLst.clear()
@@ -139,8 +139,7 @@ class Decode:
             task.cRate = self.taskRateLst[i]
             task.initRate  = self.taskRateLst[i]
             task.threhod = self.threhold
-            self.taskLst.append(task)
-        
+            self.taskLst.append(task)        
         self.decodeTime = 0
 #        print(self.decodeTime)
 #        for rob in self.robotLst:
@@ -157,9 +156,9 @@ class Decode:
         circleTime = 0
         while not self.allTaskCmplt():
             cal_type,actionID = self.findActionID()
-            self.deg.write('actionID  '+ str(actionID)+ '\n')
-            self.deg.write('cal_type  '+ str(cal_type) + '\n')
-            self.deg.flush()
+#            self.deg.write('actionID  '+ str(actionID)+ '\n')
+#            self.deg.write('cal_type  '+ str(cal_type) + '\n')
+#            self.deg.flush()
             if cal_type  == CalType['arriveCond']:
                 rob = self.robotLst[actionID]
                 arriveTime = rob.arriveTime
@@ -171,13 +170,12 @@ class Decode:
 # =============================================================================
                 if(self.cmpltLst[taskID]):
 #                   print(self.encode[actionID])
-
                    for i in range(encodeInd,self.taskNum - 1):
                        self.encode[actionID][i] = self.encode[actionID][i + 1]
                    self.encode[actionID][self.taskNum - 1] = taskID
-                   self.deg.write('pre_actionID = '+ str(actionID)+ '\n')
-                   self.deg.write('ecodeInd = '+ str(encodeInd) + '\n')
-                   self.deg.write('new_actionID = '+ str(self.encode[actionID][encodeInd]))
+#                   self.deg.write('pre_actionID = '+ str(actionID)+ '\n')
+#                   self.deg.write('ecodeInd = '+ str(encodeInd) + '\n')
+#                   self.deg.write('new_actionID = '+ str(self.encode[actionID][encodeInd]))
 #                   print('taskID',taskID)
 #                   print('encodeInd', encodeInd)
                    if encodeInd == 0:
@@ -191,15 +189,12 @@ class Decode:
                        roadDur = self.calRoadDur(preTaskID,taskID,actionID)
                        rob.arriveTime  = rob.leaveTime + roadDur
 #                   print(self.encode[actionID])
-                   if actionID == 5:
-                       pass
-#                       return 
 # =============================================================================
 # the  task has not been cmplt
 # =============================================================================
                 else:
                     task = self.taskLst[taskID]
-                    self.deg.write('taskID '+ str(taskID) +'\n')
+#                    self.deg.write('taskID '+ str(taskID) +'\n')
                     rob.taskID = taskID
                     validStateBool = task.calCurrentState(arriveTime)
                     if not validStateBool :
@@ -216,14 +211,14 @@ class Decode:
                         coordLst = self.findCoordRobot(actionID)                        
                         for coordID in coordLst:
                             coordRob = self.robotLst[coordID]
-                            self.deg.write(str(coordID) + '\n')
+#                            self.deg.write(str(coordID) + '\n')
                             coordRob.leaveTime = leaveTime
                             coordRob.executeDur = coordRob.leaveTime - coordRob.arriveTime
                     rob.leaveTime = leaveTime                    
                     rob.stateType = RobotState['onTask']
                     self.decodeTime = rob.arriveTime
-                    self.deg.write('arriveChanged\n')
-                    self.saveRobotInfo()
+#                    self.deg.write('arriveChanged\n')
+#                    self.saveRobotInfo()
 #                    print(self.decodeTime)
 # =============================================================================
 #  no coordinated robot
@@ -238,14 +233,11 @@ class Decode:
 #                print(taskID)
                 task = self.taskLst[taskID]
                 if self.cmpltLst[taskID] == True:
-                    print(self.cmpltLst)
-                    
+                    print(self.cmpltLst)                    
 #                    validStateBool = True
                     while True:
                         print('bug')
                         return 
-                        
-                        
                 else:
                     validStateBool = task.calCurrentState(rob.leaveTime)
                     if not validStateBool :
@@ -256,9 +248,9 @@ class Decode:
                         for coordID in coordLst:
                             self.updateRobLeaveCond(coordID)
                     self.updateRobLeaveCond(actionID)
-                self.deg.write('taskID '+ str(taskID) +' has been cmplt\n')
-                self.deg.write('leaveChanged\n')
-                self.saveRobotInfo()
+#                self.deg.write('taskID '+ str(taskID) +' has been cmplt\n')
+#                self.deg.write('leaveChanged\n')
+#                self.saveRobotInfo()
                 self.decodeTime =  rob.leaveTime
             
             if cal_type == CalType['endCond']:
@@ -284,17 +276,10 @@ class Decode:
 #            print(self.cmpltLst)
         if not validStateBool:
             cal_type = CalType['stateInvalidCond']
-#        print(cal_type)
-        
-        fitness = 100
-        return cal_type,fitness
+#        print(cal_type)        
+        return cal_type
 #            break
-            
-    
-    
-    
-    
-    
+                
     def allTaskCmplt(self):
         if False in self.cmpltLst:
             return False
@@ -322,7 +307,7 @@ class Decode:
             cal_type = CalType['backCond']
 #            print(minTime)
 #            print(self.decodeTime)
-        self.saveRobotInfo()
+#        self.saveRobotInfo()
         return cal_type,actionID
     def findCoordRobot(self,robID):
         coordLst = []
@@ -359,11 +344,16 @@ class Decode:
             rob.taskID = taskID
             rob.arriveTime = rob.leaveTime + rob.roadDur
             rob.stateType = RobotState['onRoad']
+    def calMakespan(self):
+# makespan for the MPDA problem        
+        leaveTimeLst = [rob.leaveTime for rob in self.robotLst]
+        makespan = max(leaveTimeLst)
+        return makespan            
     def saveEncode(self):
         for i in range(self.robNum):
             lst = list(self.encode[i][:])
-            writeConf(self.deg,str(i),lst)
-        self.deg.flush()
+            writeConf(self.deg2,str(i),lst)
+        self.deg2.flush()
     def saveRobotInfo(self):
         self.deg.write('\n')
         for i in range(self.robNum):
@@ -386,6 +376,7 @@ class Decode:
             self.deg.write(robInfo+'\n')
         self.deg.write('\n')
         self.deg.flush()
+        
 #            print(lst)
         
 #        rob_x = []
@@ -408,11 +399,17 @@ if __name__ =='__main__':
 #    infinity = float("inf")
 #    if minTime < infinity:
 #        print(')__))JHJKHJKHGKJH')
-    
-    decode = Decode('./data//s100_20_50_max100_2.5_0.02_0.02_1.2_thre0.1_MPDAins.dat')
-    for i in range(100):
+    decode = Decode('./data//s100_30_30_max100_2.5_0.02_0.02_1.2_thre0.1_MPDAins.dat')    
+    for i in range(1):
         random.seed(i)
-        print('seed = ',i)
+        print('seed = ',i)        
         decode.generateRandEncode()
-        decode.decode()           
+        start = time.clock()
+        makespan = decode.decode()
+        print(makespan)
+        end = time.clock()
+#        runDur = timeit('decode.decode()',
+#                        'from __main__ import decode.decode')           
+        print(end - start)
 #        
+        

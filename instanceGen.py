@@ -35,8 +35,8 @@ if __name__ == '__main__':
     randomSeed = 100
     random.seed(randomSeed)
     
-    robNum = 20
-    tskNum = 50
+    robNum = 30
+    tskNum = 30
     max_cordx = 100
     max_cordy = 100
     max_vel = 2.5

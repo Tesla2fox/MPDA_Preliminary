@@ -57,12 +57,12 @@ class Task():
         if(self.cState >sys.float_info.max ):
             valid = False
         self.changeRateTime = time
-        return valid
+        return valid    
     def isCmplt(self):
 #        print(self.cState)
 #        print(self.threhod)
         bias = abs(self.cState - self.threhod)
-        if bias < 0.0000001:
+        if bias < 0.000001:
             return True
         else:
             return False
