@@ -14,8 +14,8 @@ import random
 import math
 from random import randint
 import copy
-import read_cfg as rd
-from read_cfg import *
+import readCfg.read_cfg as rd
+from readCfg.read_cfg import *
 import numpy as np
 from scipy.spatial.distance import pdist
 
@@ -35,10 +35,11 @@ if __name__ == '__main__':
     randomSeed = 100
     random.seed(randomSeed)
     
-    robNum = 30
-    tskNum = 30
+    robNum = 5
+    tskNum = 6
     max_cordx = 100
     max_cordy = 100
+
     max_vel = 2.5
     max_abi = 0.02
     max_rat = 0.02

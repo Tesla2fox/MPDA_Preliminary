@@ -4,12 +4,34 @@ Created on Tue Sep  4 10:12:55 2018
 
 @author: robot
 """
+import os,sys
+AbsolutePath = os.path.abspath(__file__)           
+#将相对路径转换成绝对路径
+SuperiorCatalogue = os.path.dirname(AbsolutePath)   
+#相对路径的上级路径
+BaseDir = os.path.dirname(SuperiorCatalogue)        
+#在“SuperiorCatalogue”的基础上在脱掉一层路径，得到我们想要的路径。
+if BaseDir in sys.path:
+    print('have been added')
+    pass
+else:
+    sys.path.append(BaseDir)
 
-from read_cfg import *
-from task import *
+#sys.path.
+#sys.path.insert(0,BaseDir)
+print(sys.path)                          
+#
+##将我们取出来的路径加入到Python的命名空间去，并将该目录插入在第一个位置中。
+#print(__file__)
+
+
+from readCfg.read_cfg import Read_Cfg
+#from read_cfg import *
+from Decode.task import *
+#task import *
 import numpy as np
 import random
-from robot import *
+from Decode.robot import *
 from enum import Enum
 import sys
 from timeit import timeit
@@ -22,7 +44,6 @@ class CalType(Enum):
     backCond = 4
     stateInvalidCond = 5
     
-
 class Decode:
     def __init__(self,insFileName):
         readCfg = Read_Cfg(insFileName)
@@ -64,6 +85,16 @@ class Decode:
 # =============================================================================
 #  deg2 is for the decode process
 # =============================================================================
+
+        degFileDir = BaseDir + '//debug//'
+        ins = self.insFileName.split('data//')
+        degFileName = degFileDir + 'deg_' + ins[1]
+        self.deg = open(degFileName,'w') 
+        
+        degFileDir = BaseDir + '//debug//'
+        ins = self.insFileName.split('data//')
+        degFileName = degFileDir + 'deg2_' + ins[1]
+        self.deg2 = open(degFileName,'w')        
         
     def generateRandEncode(self):
 #        random.shuffle(permLst)
@@ -78,15 +109,6 @@ class Decode:
         
     def decode(self):
         circleTime = 0
-        degFileDir = './debug//'
-        ins = self.insFileName.split('data//')
-        degFileName = degFileDir + 'deg_' + ins[1]
-        self.deg = open(degFileName,'w') 
-        
-        degFileDir = './debug//'
-        ins = self.insFileName.split('data//')
-        degFileName = degFileDir + 'deg2_' + ins[1]
-        self.deg2 = open(degFileName,'w')        
 
         while True:
 #            print('whileCircle = ',circleTime)
@@ -102,17 +124,15 @@ class Decode:
                 break
 #            print(self.cmpltLst)
         if cal_type == CalType.stateInvalidCond:
-            print('invalidState')
+#            print('invalidState')
             makespan = sys.float_info.max
         else:
-            print('validState')
+#            print('validState')
             makespan = self.calMakespan()
         
 #            pass
 #            while True:
 #                print('0-0')            
-        self.deg.close()
-        self.deg2.close()
         return makespan
     def initStates(self):
         self.taskLst.clear()
@@ -367,39 +387,20 @@ class Decode:
             lst.append(self.robotLst[i].stateType)
             lst.append('taskID')
             lst.append(self.robotLst[i].taskID)
-#            print(lst)
             str_lst  = [str(x) for x in lst]
-#            print(str_lst)
             robInfo = '  '
             robInfo = robInfo.join(str_lst)
-#            print(robInfo)
             self.deg.write(robInfo+'\n')
         self.deg.write('\n')
         self.deg.flush()
-        
-#            print(lst)
-        
-#        rob_x = []
-#        readCfg.get('rob_x',rob_x)
-#        rob_y = []
-#        readCfg.get('rob_y',rob_y)
-#        print('begin')    
-#        ins_pic.addRob(rob_x,rob_y)
-#    
-#        tsk_x = []
-#        readCfg.get('tsk_x',tsk_x)
-#        tsk_y = []
-#        readCfg.get('tsk_y',tsk_y)
-#        ins_pic.addTsk(tsk_x,tsk_y)
-        
+    def end(self):
+        self.deg.close()
+        self.deg2.close()
+
         
 if __name__ =='__main__':
-#    minTime = sys.float_info.max 
-#    minTime  *= 50000000       
-#    infinity = float("inf")
-#    if minTime < infinity:
-#        print(')__))JHJKHJKHGKJH')
-    decode = Decode('./data//s100_30_30_max100_2.5_0.02_0.02_1.2_thre0.1_MPDAins.dat')    
+    
+    decode = Decode(BaseDir +'//data//s100_30_30_max100_2.5_0.02_0.02_1.2_thre0.1_MPDAins.dat')    
     for i in range(1):
         random.seed(i)
         print('seed = ',i)        
@@ -408,8 +409,6 @@ if __name__ =='__main__':
         makespan = decode.decode()
         print(makespan)
         end = time.clock()
-#        runDur = timeit('decode.decode()',
-#                        'from __main__ import decode.decode')           
         print(end - start)
 #        
         

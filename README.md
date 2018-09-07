@@ -13,14 +13,16 @@ MPDA_Preliminary
 4. evaluate the time of decoding process
 5. write constructive Method for the MPDA
 6. the k-means cluster
-7. the 
+7. the Gauss can not fit the data 
+8. the performance of `Gauss EDA method` is terrible
+9. the LKH problem
 
 ---
 
 # Some Progress 
 1. On sep 5th, the decode process has been completed preliminarily.
 2. On sep 6th, the decode process has been completed.
-3. 
+3. On sep 7th, the Gauss EDA has been completed preliminarily.
 
 ---
 
@@ -32,9 +34,8 @@ MPDA_Preliminary
 5. the `distributed` MPDA method 
 
 ***
-$ x \href{why-equal.html}{=} y^2 + 1 $
 
-[TOC]
+
 
 ![Image text](https://raw.githubusercontent.com/Tesla2fox/MPDA_Preliminary/master/png/__.jpg)
 
