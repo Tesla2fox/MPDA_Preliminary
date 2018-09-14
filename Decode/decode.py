@@ -26,6 +26,7 @@ print(sys.path)
 
 
 from readCfg.read_cfg import Read_Cfg
+import readCfg.read_cfg as rd
 #from read_cfg import *
 from Decode.task import *
 #task import *
@@ -110,10 +111,11 @@ class Decode:
     def decode(self):
         circleTime = 0
 
+        self.saveEncode()            
+
         while True:
-#            print('whileCircle = ',circleTime)
-#            circleTime += 1
-#            self.saveEncode()            
+            print('whileCircle = ',circleTime)
+            circleTime += 1
             self.initStates()
             cal_type = self.decodeProcessor()
 #            self.saveEncode()
@@ -123,6 +125,8 @@ class Decode:
             else:
                 break
 #            print(self.cmpltLst)
+        self.saveEncode()            
+
         if cal_type == CalType.stateInvalidCond:
 #            print('invalidState')
             makespan = sys.float_info.max
@@ -224,7 +228,7 @@ class Decode:
                     if task.cRate >= 0:
                         leaveTime = sys.float_info.max
 # can be completed
-                    else:                        
+                    else:
                         rob.executeDur = task.calExecuteDur()
                         rob.executeBool = False
                         leaveTime = rob.arriveTime + rob.executeDur                        
@@ -264,6 +268,7 @@ class Decode:
                         break
                     if(task.isCmplt()):
                         self.cmpltLst[taskID] = True
+                        self.updateEncode(taskID)                        
                         coordLst  = self.findCoordRobot(actionID)
                         for coordID in coordLst:
                             self.updateRobLeaveCond(coordID)
@@ -351,8 +356,20 @@ class Decode:
         rob = self.robotLst[robID]
         roadDur = dis/rob.vel
         return roadDur
+    def updateEncode(self,cmpltTaskID):
+        self.deg2.write('cmpltTaskID = '+ str(cmpltTaskID) +'\n')
+        for i in range(self.robNum):
+            rob = self.robotLst[i]
+#            endInd = rob.encodeIndex
+            for j in range(rob.encodeIndex + 1, self.taskNum):
+                if  self.encode[i][j] == cmpltTaskID:
+                    self.encode[i][j] = -1
+        self.saveEncode()
+                    
     def updateRobLeaveCond(self,robID):
         rob = self.robotLst[robID]
+        while True:
+            if rob.encodeIndex  == (self.taskNum  - 1)
         rob.encodeIndex += 1
         preTaskID = rob.taskID
         if rob.encodeIndex == self.taskNum:
@@ -372,7 +389,7 @@ class Decode:
     def saveEncode(self):
         for i in range(self.robNum):
             lst = list(self.encode[i][:])
-            writeConf(self.deg2,str(i),lst)
+            rd.writeConf(self.deg2,str(i),lst)
         self.deg2.flush()
     def saveRobotInfo(self):
         self.deg.write('\n')
@@ -393,7 +410,7 @@ class Decode:
             self.deg.write(robInfo+'\n')
         self.deg.write('\n')
         self.deg.flush()
-    def end(self):
+    def endDeg(self):
         self.deg.close()
         self.deg2.close()
 
@@ -410,5 +427,6 @@ if __name__ =='__main__':
         print(makespan)
         end = time.clock()
         print(end - start)
+    decode.endDeg()
 #        
         

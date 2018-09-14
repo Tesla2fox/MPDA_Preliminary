@@ -16,6 +16,13 @@ MPDA_Preliminary
 7. the Gauss can not fit the data 
 8. the performance of `Gauss EDA method` is terrible
 9. the LKH problem
+10. Neighborhood insertion search
+11. Neighborhood permutation search
+12. BAH: add job to the end of sequence 
+13. BIH: insert in the sequence
+14. TRIPS: triplet append {from paper `New heuristics for the no-wait flowshop with sequence-dependent setup times problem`}
+15. The benchmark can be constructed by the method of paper `New Benchmark Instances for the Capacitated Vehicle Routing Problem`
+16. When a task point has been completed, the task point's index in other permutations should be deleted.
 
 ---
 
@@ -23,6 +30,7 @@ MPDA_Preliminary
 1. On sep 5th, the decode process has been completed preliminarily.
 2. On sep 6th, the decode process has been completed.
 3. On sep 7th, the Gauss EDA has been completed preliminarily.
+4. 
 
 ---
 

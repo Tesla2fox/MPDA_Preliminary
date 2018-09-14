@@ -13,7 +13,7 @@ import random
 from numpy import *
 from copy import *
 import copy
-from read_cfg import Read_Cfg
+from readCfg.read_cfg import Read_Cfg
 from IPython.display import HTML,display 
 import colorlover as cl
 
@@ -129,8 +129,6 @@ class Pic:
         ))
 #        layout['yaxis']['range'] = [0,cordRange]
         fig = dict(data = self.drawData ,layout = layout)
-        
-        
         if(fileType):
             plotly.offline.plot(fig,filename = name + '.html',validate=False)
         else:
