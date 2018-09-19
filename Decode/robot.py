@@ -27,18 +27,35 @@ class Robot():
         self.executeBool = False        
         self.ability = 0
         self.vel = 0
+        self.cmpltTaskID = 0
+        self.cmpltTaskLst = []
+    def variableInfo(self):
+        return self.arriveTime,self.leaveTime,self.executeDur,self.roadDur,self.encodeIndex,self.taskID,self.stateType,self.stopBool,self.executeBool,self.cmpltTaskID,self.cmpltTaskLst
     def display(self):
         print(' arriveTime ',self.arriveTime,' leaveTime ',self.leaveTime,
         ' executeDur', self.executeDur,' roadDur',self.roadDur,
         ' encodeIndex ',self.encodeIndex, ' taskID ',self.taskID,
         ' stateType ', self.stateType, ' stopBool ',self.stopBool,
         ' excuteBool ',self.executeBool,' ability ',self.ability,
-        'vel',self.vel)        
-    
+        'vel',self.vel)
+    def recover(self,arriveTime,leaveTime,executeDur,roadDur,encodeIndex,taskID,stateType,stopBool,executeBool,cmpltTaskID,cmpltTaskLst):
+        self.arriveTime = arriveTime
+        self.leaveTime = leaveTime
+        self.executeDur = executeDur
+        self.roadDur = roadDur
+        self.encodeIndex = encodeIndex
+        self.taskID = taskID
+        self.stateType =  stateType
+        self.stopBool = stopBool
+        self.executeBool = stopBool        
+        self.cmpltTaskID = cmpltTaskID
+        self.cmpltTaskLst = cmpltTaskLst
         
-
-        
+                
 if __name__ == '__main__':
     rob = Robot()
-    rob.display()
-    
+#    rob.display()
+    variable = rob.variableInfo()
+#    variable[0] = 1
+    print(variable)
+    rob.recover(*variable)

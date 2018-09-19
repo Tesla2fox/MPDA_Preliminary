@@ -33,6 +33,7 @@ class Task():
         self.changeRateTime = 0
         self.cmplt = False
         self.threhod = 0
+        self.cmpltTime = 0
     def calExecuteDur(self):
 #        print(self.threhod)
         e_dur = math.log(self.threhod/self.cState)/self.cRate
@@ -63,15 +64,24 @@ class Task():
 #        print(self.threhod)
         bias = abs(self.cState - self.threhod)
         if bias < 0.000001:
+            self.cmplt = True
             return True
         else:
+            self.cmplt = False
             return False
     def display(self):
         print('initState',self.initState,' initRate',self.initRate,
               ' cState',self.cState,' cRate',self.cRate,
         ' changeRateTime',self.changeRateTime,' cmplt ',self.cmplt,
         ' threhod ',self.threhod)
-        
+    def variableInfo(self):
+        return self.cState,self.cRate,self.changeRateTime,self.cmplt,self.cmpltTime
+    def recover(self,cState,cRate,changeRateTime,cmplt,cmpltTime):
+        self.cState = cState
+        self.cRate = cRate
+        self.changeRateTime = changeRateTime
+        self.cmplt = cmplt
+        self.cmpltTime = cmpltTime
 if __name__ == '__main__':
     tsk = Task()
     tsk.display()
