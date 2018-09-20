@@ -5,27 +5,28 @@ Created on Wed Sep 19 14:59:38 2018
 @author: robot
 """
 
-import decodeBase as db
-from decodeBase import CalType,BaseDir
+#import 
+import Decode.decodeBase as db
+from Decode.decodeBase import CalType,BaseDir
 import time
 import sys
 import copy as cp
 import random
-from robot import RobotState
+from Decode.robot import RobotState
 
 '''
 decode with re-calculation
 '''
-
+#`
 class DecodeRC(db.DecodeBase):
     def __init__(self,insFileName):
         super(DecodeRC,self).__init__(insFileName)
         degFileDir = BaseDir + '//debug//'
-        ins = self.insFileName.split('data//')
+        ins = self.insFileName.split('data\\')
         degFileName = degFileDir + 'deg_RC' + ins[1]
         self.deg = open(degFileName,'w')         
         degFileDir = BaseDir + '//debug//'
-        ins = self.insFileName.split('data//')
+        ins = self.insFileName.split('data\\')
         degFileName = degFileDir + 'deg2_RC' + ins[1]
         self.deg2 = open(degFileName,'w')
     def decode(self):
@@ -89,11 +90,11 @@ class DecodeSS(db.DecodeBase):
     def __init__(self,insFileName):
         super(DecodeSS,self).__init__(insFileName)
         degFileDir = BaseDir + '//debug//'
-        ins = self.insFileName.split('data//')
+        ins = self.insFileName.split('data\\')
         degFileName = degFileDir + 'deg_SS' + ins[1]
         self.deg = open(degFileName,'w')         
         degFileDir = BaseDir + '//debug//'
-        ins = self.insFileName.split('data//')
+        ins = self.insFileName.split('data\\')
         degFileName = degFileDir + 'deg2_SS' + ins[1]
         self.deg2 = open(degFileName,'w')
     def decode(self):
@@ -209,11 +210,11 @@ class DecodeNB(db.DecodeBase):
     def __init__(self,insFileName):
         super(DecodeNB,self).__init__(insFileName)
         degFileDir = BaseDir + '//debug//'
-        ins = self.insFileName.split('data//')
+        ins = self.insFileName.split('data\\')
         degFileName = degFileDir + 'deg_NB' + ins[1]
         self.deg = open(degFileName,'w')         
         degFileDir = BaseDir + '//debug//'
-        ins = self.insFileName.split('data//')
+        ins = self.insFileName.split('data\\')
         degFileName = degFileDir + 'deg2_NB' + ins[1]
         self.deg2 = open(degFileName,'w')
         self.leaveCmpltTask = self.updateRobLeaveCond

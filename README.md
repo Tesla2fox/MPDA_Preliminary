@@ -23,7 +23,8 @@ MPDA_Preliminary
 14. TRIPS: triplet append {from paper `New heuristics for the no-wait flowshop with sequence-dependent setup times problem`}
 15. The benchmark can be constructed by the method of paper `New Benchmark Instances for the Capacitated Vehicle Routing Problem`
 16. When a task point has been completed, the task point's index in other permutations should be deleted.
-17. 
+17. Draw some  gantt picture
+18. 
 
 ---
 
@@ -35,7 +36,8 @@ MPDA_Preliminary
 	>- decdoe with the re-calculation
 	>- decode with saving states
  	>- decode with no-backtrack
-5. 
+5. The decode method will chosse the decode method with saving states, on sep 20 th.
+6. 
 
 ---
 
