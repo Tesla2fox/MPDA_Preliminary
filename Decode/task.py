@@ -9,6 +9,7 @@ inh is an abbreviation for inherent
 import numpy as np
 import math
 import sys
+import copy
 
 def getTaskDic():
     dic = dict()
@@ -74,6 +75,10 @@ class Task():
               ' cState',self.cState,' cRate',self.cRate,
         ' changeRateTime',self.changeRateTime,' cmplt ',self.cmplt,
         ' threhod ',self.threhod)
+    def __str__(self):
+        return 'initState = '+ str(self.initState)+ ' initRate = '+str(self.initRate)+' cState = '+str(self.cState)\
+        +' cRate = '+str(self.cRate)+' changeRateTime = '+str(self.changeRateTime) + ' cmplt  = '+ str(self.cmplt)\
+        +' threhod '+ str(self.threhod)
     def variableInfo(self):
         return self.cState,self.cRate,self.changeRateTime,self.cmplt,self.cmpltTime
     def recover(self,cState,cRate,changeRateTime,cmplt,cmpltTime):
@@ -82,6 +87,13 @@ class Task():
         self.changeRateTime = changeRateTime
         self.cmplt = cmplt
         self.cmpltTime = cmpltTime
+    def __deepcopy__(self,memo):
+        """Overridden to avoid cloning the problem definition."""
+        result = Task()
+        memo[id(self)] = result        
+        for k, v in self.__dict__.items():
+            setattr(result, k, copy.deepcopy(v, memo))                
+        return result
 if __name__ == '__main__':
     tsk = Task()
     tsk.display()

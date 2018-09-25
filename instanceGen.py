@@ -35,14 +35,14 @@ if __name__ == '__main__':
     randomSeed = 100
     random.seed(randomSeed)
     
-    robNum = 200
-    tskNum = 200
+    robNum = 5
+    tskNum = 10
     max_cordx = 100
     max_cordy = 100
 
     max_vel = 2.5
-    max_abi = 0.02
-    max_rat = 0.02
+    max_abi = 2.5
+    max_rat = 2.5
     max_state = 1.2
     comp_threhold = 0.1
     

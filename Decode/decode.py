@@ -5,12 +5,28 @@ Created on Wed Sep 19 14:59:38 2018
 @author: robot
 """
 
-#import 
-import Decode.decodeBase as db
-from Decode.decodeBase import CalType,BaseDir
+
+
+import os,sys
+AbsolutePath = os.path.abspath(__file__)           
+#将相对路径转换成绝对路径
+SuperiorCatalogue = os.path.dirname(AbsolutePath)   
+#相对路径的上级路径
+BaseDir = os.path.dirname(SuperiorCatalogue)        
+#在“SuperiorCatalogue”的基础上在脱掉一层路径，得到我们想要的路径。
+if BaseDir in sys.path:
+#    print('have been added')
+    pass
+else:
+    sys.path.append(BaseDir)
+
+
+        
 import time
 import sys
 import copy as cp
+import Decode.decodeBase as db
+from Decode.decodeBase import CalType,BaseDir
 import random
 from Decode.robot import RobotState
 
@@ -98,25 +114,16 @@ class DecodeSS(db.DecodeBase):
         degFileName = degFileDir + 'deg2_SS' + ins[1]
         self.deg2 = open(degFileName,'w')
     def decode(self):
-#        circleTime = 0
-#        self.saveEncode()
+        '''
+        
+        '''
         self.initStates()
         self.robInfoLst = []
         self.taskInfoLst = []
         self.decodeTimeLst = []            
         while True:
-#            print('whileCircle = ',circleTime)
-#            circleTime += 1
-#            if circleTime > 100:
-#                break
-#            start = time.clock()
-#            print(self.cmpltLst)
             cal_type = self.decodeProcessor()
-#            self.saveEncode()
-#            end = time.clock()
-#            print(end - start)
             if cal_type == CalType['backCond']:
-#                break                
                 while True:
                     if self.decodeTimeLst[-1] > self.backArriveTime:
                         self.decodeTimeLst.pop()
@@ -124,18 +131,10 @@ class DecodeSS(db.DecodeBase):
                         self.taskInfoLst.pop()
                     else:
                         break
-#                print('lastDecode',self.decodeTimeLst[-1])
-#                print('backArriveTime',self.backArriveTime)
-#                print('backRobId',self.backRobID)
-#                print('')
                 self.eventRecover()
-#                self.deg.write('__backItem__\n')
-#                self.saveRobotInfo()
-#                break    
                 continue
             else:
                 break
-#        print('end = ',self.cmpltLst)
         if cal_type == CalType.stateInvalidCond:
             makespan = sys.float_info.max
         else:
@@ -143,6 +142,9 @@ class DecodeSS(db.DecodeBase):
         self.saveEncode()
         return makespan
     def saveEventInMemory(self):        
+        '''
+        event triggers the process of saving states  
+        '''
         robInfo = []
         for rob in self.robotLst:
             variableInfo = rob.variableInfo()
@@ -156,11 +158,18 @@ class DecodeSS(db.DecodeBase):
         self.taskInfoLst.append(taskInfo)
         self.decodeTimeLst.append(self.decodeTime)
     def backOneStep(self):
+        '''
+        return back one state
+        '''
         self.robInfoLst.pop()
         self.taskInfoLst.pop()
         self.decodeTimeLst.pop()
         self.decodeTime = self.decodeTimeLst[-1]        
     def eventRecover(self):
+        '''
+        states of decode recover to the time when the time axis 
+        has not been disordered
+        '''
         robInfo = self.robInfoLst[-1]
         self.decodeTime = self.decodeTimeLst[-1]
 #        print(robInfoTuple)
@@ -174,6 +183,9 @@ class DecodeSS(db.DecodeBase):
             task.recover(*taskInfo[index])
             self.cmpltLst[index]  = task.cmplt
     def arriveCmpltTask(self,actionID,encodeInd):
+        '''
+        find other tasks which have not been completed.
+        '''
         self.encode[actionID][encodeInd] = -1 
         rob = self.robotLst[actionID]
         while True:                       
@@ -238,32 +250,39 @@ class DecodeNB(db.DecodeBase):
 #    def leaveCmpltTask(self,actionID):
 
 if __name__ == '__main__':
-    insName = 's100_80_80_max100_2.5_0.02_0.02_1.2_thre0.1_MPDAins.dat'
-    d_rc = DecodeRC(BaseDir + '//data//' + insName)    
-    d_ss = DecodeSS(BaseDir + '//data//' + insName)
-    d_nb = DecodeNB(BaseDir + '//data//' + insName)    
+    insName = 's100_5_10_max100_2.5_2.5_2.5_1.2_thre0.1_MPDAins.dat'
+    d_rc = DecodeRC(BaseDir + '//data\\' + insName)    
+    d_ss = DecodeSS(BaseDir + '//data\\' + insName)
+    d_nb = DecodeNB(BaseDir + '//data\\' + insName)    
     random.seed(1)
     d_nb.generateRandEncode()
     d_nb.saveEncode()
-    makespan = d_nb.decode()
+    try:        
+        makespan = d_nb.decode()
+    except Exception as e:
+        print(e)
+        makespan = sys.float_info.max
     print('nb_makespan = ',makespan)
-    random.seed(1)
-    d_rc.generateRandEncode()
-    d_rc.saveEncode()
-    makespan = d_rc.decode()
-    print('rc_makespan = ',makespan)
-    random.seed(1)    
-    d_ss.generateRandEncode()
-    d_ss.saveEncode()
-    makespan = d_ss.decode()
-    print('ss_makespan = ',makespan)
-    encode = d_ss.genNoBacktrackEncode()
-    d_nb.encode = encode
-    makespan = d_nb.decode()
-    print('newNb_makespan = ',makespan)    
-    d_rc.endDeg()
-    d_ss.endDeg()
-    d_nb.endDeg()
-
+        
+# =============================================================================
+#     random.seed(1)
+#     d_rc.generateRandEncode()
+#     d_rc.saveEncode()
+#     makespan = d_rc.decode()
+#     print('rc_makespan = ',makespan)
+#     random.seed(1)    
+#     d_ss.generateRandEncode()
+#     d_ss.saveEncode()
+#     makespan = d_ss.decode()
+#     print('ss_makespan = ',makespan)
+#     encode = d_ss.genNoBacktrackEncode()
+#     d_nb.encode = encode
+#     makespan = d_nb.decode()
+#     print('newNb_makespan = ',makespan)    
+#     d_rc.endDeg()
+#     d_ss.endDeg()
+#     d_nb.endDeg()
+# 
+# =============================================================================
     
     

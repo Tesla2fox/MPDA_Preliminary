@@ -13,13 +13,30 @@ SuperiorCatalogue = os.path.dirname(AbsolutePath)
 BaseDir = os.path.dirname(SuperiorCatalogue)        
 #在“SuperiorCatalogue”的基础上在脱掉一层路径，得到我们想要的路径。
 if BaseDir in sys.path:
-    print('have been added')
+#    print('have been added')
     pass
 else:
     sys.path.append(BaseDir)
 
-class TaskIDException(Exception):
-    pass
+
+
+
+class InvalidStateException(Exception):
+    '''
+    Custom exception types about InvalidStateException
+    '''
+    def __init__(self):
+        err = 'InvalidStateException'
+        super(InvalidStateException,self).__init__(err)
+#        Exception.__init__(self, err)
+
+class RobotStuckException(Exception):
+    '''
+    Custom exception types about RobotStuckException
+    '''
+    def __init__(self):
+        err = 'RobotStuckException'
+        super(RobotStuckException,self).__init__(err)
 
 
 from readCfg.read_cfg import Read_Cfg
@@ -78,107 +95,23 @@ class DecodeBase:
         self.robInfoLst = []
         self.taskInfoLst = []
         self.decodeTimeLst = []
-        
-# =============================================================================
-#  deg2 is for the decode process
-# =============================================================================
-
-#        degFileDir = BaseDir + '//debug//'
-#        ins = self.insFileName.split('data//')
-#        degFileName = degFileDir + 'deg_' + ins[1]
-#        self.deg = open(degFileName,'w') 
-#        
-#        degFileDir = BaseDir + '//debug//'
-#        ins = self.insFileName.split('data//')
-#        degFileName = degFileDir + 'deg2_' + ins[1]
-#        self.deg2 = open(degFileName,'w')        
-        
+                
     def generateRandEncode(self):
-#        random.shuffle(permLst)
         for i in range(self.robNum):
-#            for j in range(self.taskNum):
             permLst = [x for x in range(self.taskNum)]
             random.shuffle(permLst)
-#            print(permLst)
             self.encode[i][:] = permLst
-#        print(self.encode)
         
         
     def decode(self):
-        circleTime = 0
-
-#        self.saveEncode()            
-        while True:
-            print('whileCircle = ',circleTime)
-            circleTime += 1
-            start = time.clock()
-#            self.initStates()
-            cal_type = self.decodeProcessor()
-#            self.saveEncode()
-            end = time.clock()
-            print(end - start)
-            if cal_type == CalType['backCond']:
-#                break
-                continue
-            else:
-                break
-        print(self.cmpltLst)
-#        self.saveEncode()            
-
-        if cal_type == CalType.stateInvalidCond:
-#            print('invalidState')
-            makespan = sys.float_info.max
-        else:
-#            print('validState')
-            makespan = self.calMakespan()
-        
-#            pass
-#            while True:
-#                print('0-0')            
-        return makespan
-    def newDecode(self):
-        circleTime = 0
-
-#        self.saveEncode()
-        self.initStates()            
-        while True:
-            print('whileCircle = ',circleTime)
-            circleTime += 1
-#            if circleTime > 100:
-#                break
-            start = time.clock()
-#            print(self.cmpltLst)
-            cal_type = self.decodeProcessor()
-#            self.saveEncode()
-            end = time.clock()
-            print(end - start)
-            if cal_type == CalType['backCond']:
-#                break                
-                while True:
-                    if self.decodeTimeLst[-1] > self.backArriveTime:
-                        self.decodeTimeLst.pop()
-                        self.robInfoLst.pop()
-                        self.taskInfoLst.pop()
-                    else:
-                        break
-#                print('lastDecode',self.decodeTimeLst[-1])
-#                print('backArriveTime',self.backArriveTime)
-#                print('backRobId',self.backRobID)
-#                print('')
-                self.eventRecover()
-#                self.deg.write('__backItem__\n')
-#                self.saveRobotInfo()
-#                break    
-                continue
-            else:
-                break
-#        print('end = ',self.cmpltLst)
-        if cal_type == CalType.stateInvalidCond:
-            makespan = sys.float_info.max
-        else:
-            makespan = self.calMakespan()
-        return makespan        
+        '''
+        ready to construct
+        '''
+        pass
     def initStates(self):
+        '''
+        initialize states of decode method 
+        '''
         self.taskLst.clear()
         self.robotLst.clear()
         self.cmpltLst.clear()
@@ -188,11 +121,7 @@ class DecodeBase:
             rob.ability = self.robAbiLst[i]
             rob.vel = self.robVelLst[i]
             rob.encodeIndex = 0
-#            if 
             rob.taskID,rob.encodeIndex = self.getRobTask(robID = i, encodeIndex = 0)
-            if rob.taskID < 0:
-                print('wtf')
-#            rob.taskID = self.encode[i][0]
             dis  = self.rob2taskDisMat[i][rob.taskID]            
             dis_time = dis/rob.vel
             rob.stateType = RobotState['onRoad']
@@ -209,69 +138,33 @@ class DecodeBase:
             task.threhod = self.threhold
             task.cmpltTime = sys.float_info.max
             self.taskLst.append(task)
+            
         self.decodeTime = 0
-#        print(self.decodeTime)
-#        for rob in self.robotLst:
-#            rob.display()
-#            print('__')
-#        for task in self.taskLst:
-#            task.display()
-#            print('')
     def decodeProcessor(self):
         invalidFitness = False
         backBool = False
-        validStateBool = True
-        
-        circleTime = 0
+        validStateBool = True        
         while not self.allTaskCmplt():
             cal_type,actionID = self.findActionID()
-#            self.deg.write('actionID  '+ str(actionID)+ '\n')
-#            self.deg.write('cal_type  '+ str(cal_type) + '\n')
-#            self.deg.flush()
             if cal_type  == CalType['arriveCond']:
+# =============================================================================
+# arrive event 
+# =============================================================================
+
                 rob = self.robotLst[actionID]
                 arriveTime = rob.arriveTime
-#                print('old arriveTime', rob.arriveTime)
                 encodeInd = rob.encodeIndex
                 taskID = self.encode[actionID][encodeInd]
-#                robTaskID = rob.taskID
-#                taskID = rob.taskID
-#                if taskID != robTaskID:
-#                    self.saveRobotInfo()
-#                    print(actionID)
-#                    print('taskID =  ',taskID,' robTaskID = ',robTaskID)
-#                    print(self.encode[actionID])
-#                    print('encodeInd = ',rob.encodeIndex)
-#                    return                 
-#                if taskID < 0:
-#                    print('bug')
-#                    self.deg.write('__bugItem__\n')
-#                    self.saveRobotInfo()
-#                    print(actionID)
-#                    print(self.encode[actionID])
-#                    print(encodeInd)
-#                cmplt = False
-#                if taskID >= 0:
-#                    if self.cmpltLst[taskID]:
-#                        cmplt = True
-#                else:
-#                    cmplt = True
-                
+                if self.taskCmplt(taskID):
 # =============================================================================
 #  the task has been cmplt
 # =============================================================================
-                if self.taskCmplt(taskID):
-#                   print(self.encode[actionID])
-#                   preTaskID = rob.taskID
-#                   for i in range(encodeInd,self.taskNum - 1):
-#                       self.encode[actionID][i] = self.encode[actionID][i + 1]
                     self.arriveCmpltTask(actionID,encodeInd)
+                else:
 # =============================================================================
 # the  task has not been cmplt
-# =============================================================================
-                else:
+# =============================================================================                    
                     task = self.taskLst[taskID]
-#                    self.deg.write('taskID '+ str(taskID) +'\n')
                     rob.taskID = taskID
                     validStateBool = task.calCurrentState(arriveTime)
                     if not validStateBool :
@@ -288,19 +181,11 @@ class DecodeBase:
                         coordLst = self.findCoordRobot(actionID)                        
                         for coordID in coordLst:
                             coordRob = self.robotLst[coordID]
-#                            self.deg.write(str(coordID) + '\n')
                             coordRob.leaveTime = leaveTime
                             coordRob.executeDur = coordRob.leaveTime - coordRob.arriveTime
                     rob.leaveTime = leaveTime                    
                     rob.stateType = RobotState['onTask']
                     self.decodeTime = rob.arriveTime
-#                    self.deg.write('arriveChanged\n')
-#                    self.saveRobotInfo()
-#                    print('arriveTime ',self.decodeTime)
-# =============================================================================
-#  no coordinated robot
-# ============================================= ================================
-#                    if not coordLst:
 # =============================================================================
 #  begin the leave condition for 
 # =============================================================================
@@ -347,6 +232,8 @@ class DecodeBase:
 #                print(taskID,' cmpltTime ', task.cmpltTime)
             if cal_type == CalType['endCond']:
                 invalidFitness = True
+#                raise Exception('end-Condition-bug, robots have been stuck')
+                raise InvalidStateException()
                 break
             if cal_type  == CalType['backCond']:
                 backBool = True
@@ -371,6 +258,8 @@ class DecodeBase:
 #            print(self.cmpltLst)
         if not validStateBool:
             cal_type = CalType['stateInvalidCond']
+#            raise Exception('stateInvalidCond-bug, the state is too enormous')
+            raise RobotStuckException()            
 #        print(cal_type)        
         return cal_type
 #            break
@@ -409,6 +298,9 @@ class DecodeBase:
 #        self.saveRobotInfo()
         return cal_type,actionID
     def findCoordRobot(self,robID):
+        '''
+        find robots which are corrdinated with the robot A
+        '''
         coordLst = []
         rob = self.robotLst[robID]
         taskID =  rob.taskID
@@ -424,24 +316,28 @@ class DecodeBase:
                 coordLst.append(i)
         return coordLst                        
     def calRoadDur(self,taskID1,taskID2,robID):
+        '''
+        calculate the time fragment from the time when robID leaves the taskID1 to
+        the time when rob arrives the taskID2
+        '''
         dis = self.taskDisMat[taskID1][taskID2]
         rob = self.robotLst[robID]
         roadDur = dis/rob.vel
         return roadDur
     def updateEncode(self,cmpltTaskID):
-#        self.saveEncode()                    
-        if cmpltTaskID < 0 :
-            raise Exception('cmpltTaskID < 0 ')
-#        self.deg2.write('cmpltTaskID = '+ str(cmpltTaskID) +'\n')
+        '''
+        correct the encode,
+        delete furture tasks which have been completed.
+        '''
         for i in range(self.robNum):
             rob = self.robotLst[i]
-#            endInd = rob.encodeIndex
             for j in range(rob.encodeIndex + 1, self.taskNum):
                 if  self.encode[i][j] == cmpltTaskID:
                     self.encode[i][j] = -1
-#        self.deg2.write('\nchange\n')
-#        self.saveEncode()                    
     def updateRobLeaveCond(self,robID):
+        '''
+        update robot's state when the leave event has been triggered.
+        '''
         rob = self.robotLst[robID]
         preTaskID = rob.taskID
         while True:
@@ -451,7 +347,6 @@ class DecodeBase:
             rob.encodeIndex  += 1
             taskID = self.encode[robID][rob.encodeIndex]
             if self.taskCmplt(taskID):
-#                print(taskID,'has been completed')
                 continue
             else:
                 roadDur = self.calRoadDur(preTaskID,taskID,robID)
@@ -466,6 +361,9 @@ class DecodeBase:
                 rob.stateType = RobotState['onRoad']
                 break
     def taskCmplt(self,taskID):
+        '''
+        taskID has been completed or not
+        '''
         cmplt = False
         if taskID < 0:
             cmplt = True
@@ -474,7 +372,9 @@ class DecodeBase:
                 cmplt = True
         return cmplt                    
     def getRobTask(self,robID = 0, encodeIndex = 0):
-#        rob = self.robotLst[robID]
+        '''
+        get the robot next task ID
+        '''
         while True:            
             taskID = self.encode[robID][encodeIndex]
             if taskID < 0:
@@ -489,11 +389,18 @@ class DecodeBase:
         makespan = max(leaveTimeLst)
         return makespan            
     def saveEncode(self):
+        '''
+        save encode information into the deg2 files 
+        '''
         for i in range(self.robNum):
             lst = list(self.encode[i][:])
             rd.writeConf(self.deg2,str(i),lst)
         self.deg2.flush()
+        
     def saveRobotInfo(self):
+        '''
+        save robot information into the deg files 
+        '''
         self.deg.write('\n')
         for i in range(self.robNum):
             lst = []
@@ -519,6 +426,9 @@ class DecodeBase:
     def arriveCmpltTask(self,actionID,encodeInd):
         pass
     def genNoBacktrackEncode(self):
+        '''
+        generate the no-backtrack encode        
+        '''
         encode = np.zeros((self.robNum,self.taskNum),dtype =int)
         for i  in range(self.robNum):
             ind = 0 
@@ -531,24 +441,5 @@ class DecodeBase:
         self.deg.close()
         self.deg2.close()
         
-if __name__ =='__main__':    
-    decode = Decode(BaseDir +'//data//s100_200_200_max100_2.5_0.02_0.02_1.2_thre0.1_MPDAins.dat')    
-    start = time.clock()
-#    decode.encode[0][1] = 'w'
-#    print(decode.encode)
-#    for i in range(10):
-#        random.seed(i)
-#        print('seed = ',i)        
-#        decode.generateRandEncode()
-#        makespan = decode.newDecode()
-#        print('makespan = ', makespan)
-##        print(decode.taskDisMat[43][39])
-##        print(decode.taskDisMat[43][7])
-#        print(len(decode.robInfoLst))
-##        print(decode.robInfoLst[0])
-#    end = time.clock()
-#    print('newDecodeTime = ', end - start)
-#    decode.endDeg()
-    
-#        
-        
+if __name__ =='__main__':
+    print('0-0')
