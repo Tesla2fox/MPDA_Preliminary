@@ -256,6 +256,7 @@ class DecodeBase:
 #            if circleTime > 3000:
 #                break            
 #            print(self.cmpltLst)
+        
         if not validStateBool:
             cal_type = CalType['stateInvalidCond']
 #            raise Exception('stateInvalidCond-bug, the state is too enormous')

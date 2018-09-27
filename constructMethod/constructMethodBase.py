@@ -24,11 +24,18 @@ import constructMethod.solution as sol
 from functools import wraps
 from Decode.task import Task
 
-#import Decode.task as dc
-#import Decode.robot as dc
+
+
+from enum import Enum
 import time
 import copy
 
+
+class EventTime(Enum):
+    ARRIVETIME = 1
+    COMPLETETIME = 2
+    EXECUTEPERIOD = 3
+    
 class ConstructMethodBase(object):
     def __init__(self, instance):
         self._instance = instance
@@ -42,7 +49,7 @@ class ConstructMethodBase(object):
     def calRob2TaskPeriod(self,robID,taskID):
         dur = self._instance.calRob2TaskPeriod(robID,taskID)        
         return dur
-    def calRobFirstTaskComp(self,robID,taskID):
+    def calRobFirstTaskEventTime(self,robID,taskID,EventTimeType = EventTime['COMPLETETIME']):
         dur = self._instance.calRob2TaskPeriod(robID,taskID)
         robAbi = self._instance.robAbiLst[robID]
         calTask = copy.deepcopy(self.taskLst[taskID])
@@ -50,8 +57,27 @@ class ConstructMethodBase(object):
         cRate = sys.float_info.max
         cmpTime = sys.float_info.max
         if vaild == True:
-            print(calTask)
-            print(self.taskLst[taskID])
+#            print(calTask)
+#            print(self.taskLst[taskID])
+            calTask.cRate = calTask.cRate - robAbi
+            if calTask.cRate >=0:
+                cmpTime = sys.float_info.max
+            else:
+                executeDur = calTask.calExecuteDur()
+                cmpTime = dur + executeDur
+            cRate = calTask.cRate
+        return vaild,cmpTime,cRate
+
+    def calRobFirstTaskCmplt(self,robID,taskID):
+        dur = self._instance.calRob2TaskPeriod(robID,taskID)
+        robAbi = self._instance.robAbiLst[robID]
+        calTask = copy.deepcopy(self.taskLst[taskID])
+        vaild = calTask.calCurrentState(dur)
+        cRate = sys.float_info.max
+        cmpTime = sys.float_info.max
+        if vaild == True:
+#            print(calTask)
+#            print(self.taskLst[taskID])
             calTask.cRate = calTask.cRate - robAbi
             if calTask.cRate >=0:
                 cmpTime = sys.float_info.max
@@ -64,6 +90,7 @@ class ConstructMethodBase(object):
         
     def sort(self,lst = [], keyFunc = lambda x: x[1] , reverse = False):
         lst = sorted(lst,key = keyFunc, reverse = reverse)
+#        print(lst)
         val = sys.float_info.min
         orderInd = -1
         dic = dict()
@@ -86,7 +113,14 @@ class ConstructMethodBase(object):
             task.threhod = self._instance.threhold
             task.cmpltTime = sys.float_info.max
             self.taskLst.append(task)
-        
+    def _generateWeightLst(self,weightNum = 10):
+        lst = []
+        weightUnit = 1/(weightNum -1)
+        for i in range(weightNum):
+            lst.append(weightUnit*i)
+        return lst
+            
+    
     def getUnitValue(self,x):
         return x[1]
     def __str__(self):
@@ -114,13 +148,14 @@ class CalPeriod(object):
     
 if __name__ == '__main__':
     
-    insName = 's100_5_10_max100_2.5_2.5_2.5_1.2_thre0.1_MPDAins.dat'
+    insName = 's100_3_4_max100_2.5_1.2_1.2_1.2_thre0.1_MPDAins.dat'
     pro = ins.Instance(BaseDir + '//data\\' + insName)    
     con = ConstructMethodBase(pro)
     print(con._solution)
     dic = dict()
     dic[1] = 1090
     print(dic)
+    print(EventTime['COMPLETETIME'])
 #    print(pro)
     
 #    constructName = 's100_5_10_max100_2.5_2.5_2.5_1.2_thre0.1_MPDAins.dat'    

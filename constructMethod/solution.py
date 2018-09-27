@@ -73,9 +73,11 @@ class Solution(object):
     def __eq__(self,other):
 #        print((self.encode == other.encode).all())
         if (self.encode == other.encode).all():
-            if self.instance == other.instance:
+            if self._instance == other._instance:
                 return True
         return False
+    def genNoBackTrackEncode(self):
+        self.encode = self._instance.genNoBackTrackEncode(self.encode)
 #    def __cmp__(self,other):
 #        if self.objective> other.objective:
 #            return True

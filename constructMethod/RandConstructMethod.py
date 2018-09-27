@@ -49,7 +49,7 @@ class RandConstructMethod(ConstructMethodBase):
     
 if __name__ == '__main__':
     
-    insName = 's100_5_10_max100_2.5_2.5_2.5_1.2_thre0.1_MPDAins.dat'
+    insName = 's100_3_4_max100_2.5_1.2_1.2_1.2_thre0.1_MPDAins.dat'
     pro = ins.Instance(BaseDir + '//data\\' + insName)    
     con = RandConstructMethod(pro)
 #    print(pro)

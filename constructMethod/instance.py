@@ -75,6 +75,16 @@ class Instance(object):
 #            print(e)
             makespan = sys.float_info.max
         return makespan
+    def genNoBackTrackEncode(self,encode):        
+        resEncode = np.zeros((self.robNum,self.taskNum),dtype =int)
+        resEncode[:][:] = -1
+        for i  in range(self.robNum):
+            ind = 0 
+            for j in range(self.taskNum):
+                if encode[i][j] != -1:
+                    resEncode[i][ind] = encode[i][j]
+                    ind += 1
+        return resEncode
     def calRob2TaskPeriod(self,robID,taskID):
         dis = self.rob2taskDisMat[robID][taskID]
         dis_time = dis/self.robVelLst[robID]
