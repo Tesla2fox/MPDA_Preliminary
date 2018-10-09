@@ -42,10 +42,6 @@ class ConstructMethodBase(object):
         self._solution = sol.Solution(self._instance)
         self.taskLst = []
         self.__initTaskStates()
-#        print('0-sa')
-#        print(self.__ins)
-#        instance.
-#        super(ConstructMethodBase,self).__init__(insFileName)
     def calRob2TaskPeriod(self,robID,taskID):
         dur = self._instance.calRob2TaskPeriod(robID,taskID)        
         return dur
@@ -55,19 +51,21 @@ class ConstructMethodBase(object):
         calTask = copy.deepcopy(self.taskLst[taskID])
         vaild = calTask.calCurrentState(dur)
         cRate = sys.float_info.max
-        cmpTime = sys.float_info.max
+        eventTime = sys.float_info.max
         if vaild == True:
 #            print(calTask)
 #            print(self.taskLst[taskID])
             calTask.cRate = calTask.cRate - robAbi
             if calTask.cRate >=0:
-                cmpTime = sys.float_info.max
+                eventTime = sys.float_info.max
             else:
                 executeDur = calTask.calExecuteDur()
-                cmpTime = dur + executeDur
+                if EventTimeType == EventTime['COMPLETETIME']:                    
+                    eventTime = dur + executeDur
+                else:
+                    eventTime = executeDur
             cRate = calTask.cRate
-        return vaild,cmpTime,cRate
-
+        return vaild,eventTime,cRate
     def calRobFirstTaskCmplt(self,robID,taskID):
         dur = self._instance.calRob2TaskPeriod(robID,taskID)
         robAbi = self._instance.robAbiLst[robID]

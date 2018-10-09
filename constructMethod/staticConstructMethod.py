@@ -106,16 +106,17 @@ class StaticConstructMethod(ConstructMethodBase):
         preCmpltTupleLst = []
         for i in range(self._instance.robNum):
             for j in range(self._instance.taskNum):
-                    CmpltUnit =self.calRobFirstTaskCmplt(i,j)                        
+                    CmpltUnit =self.calRobFirstTaskCmplt(i,j)
+#                    CmpltUnit =self.calRobFirstTaskCmplt(0,0)                                            
                     preCmpltTupleLst.append(((i,j),CmpltUnit))
 #        preCompTupleLst[-1] = (((4,10),(False,199,1)))
         
 #        print('begin _____ end')
-        
+        print(preCmpltTupleLst)
         self.cmpltDic =  self.sort(preCmpltTupleLst,keyFunc = cmp_to_key(self.__cmpCmpltTime)\
                                    ,reverse = cmpltReverse)
 #        print(preCompTupleLst)
-#        print(self.cmpltDic)
+        print(self.cmpltDic)
 #        print(preCompTupleLst)
     def __sortPreFirstExecuteTime(self,cmpltReverse = False):
 #        preFirstComTime = []
@@ -132,9 +133,7 @@ class StaticConstructMethod(ConstructMethodBase):
 #        print('begin _____ end')
         
         self.cmpltDic =  self.sort(preCmpltTupleLst,keyFunc = cmp_to_key(self.__cmpCmpltTime)\
-                                   ,reverse = cmpltReverse)
-
-    
+                                   ,reverse = cmpltReverse)    
     def __cmpCmpltTime(self,a,b):
 #        print('a = ',a)
 #        print('b = ',b)
@@ -152,8 +151,7 @@ class StaticConstructMethod(ConstructMethodBase):
                 return -1
     def __orderLst2Sol(self,orderLst = []):
         encodeIndLst = [0]*self._instance.robNum
-        resSol = sol.Solution(self._instance)
-        
+        resSol = sol.Solution(self._instance)        
         for orderUnit in orderLst:
             robID = orderUnit[0][0]
             taskID = orderUnit[0][1]
@@ -165,11 +163,11 @@ class StaticConstructMethod(ConstructMethodBase):
     def __str__(self):
         return 'StaticConstructMethod\n' + str(self._solution)
     
-if __name__ == '__main__':
-    
+if __name__ == '__main__':    
     insName = 's100_3_4_max100_2.5_1.2_1.2_1.2_thre0.1_MPDAins.dat'
     pro = ins.Instance(BaseDir + '//data\\' + insName)    
     con = StaticConstructMethod(pro)
 #    print(pro)
 #    random.seed(2)
     print(con.construct(cmpltReverse = True))
+    print(con.Gconstruct(cmpltReverse = True))
