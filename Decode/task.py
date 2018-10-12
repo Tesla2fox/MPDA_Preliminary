@@ -52,6 +52,7 @@ class Task():
 #        print(changeDur)
 #        print(self.cState)
         incre = changeDur *self.cRate
+        
         if incre > 709:
             return False         
         self.cState = self.cState*math.exp(changeDur*self.cRate)                

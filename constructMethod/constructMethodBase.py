@@ -23,6 +23,7 @@ import constructMethod.instance as ins
 import constructMethod.solution as sol
 from functools import wraps
 from Decode.task import Task
+from Decode.robot import Robot
 
 
 
@@ -149,6 +150,8 @@ if __name__ == '__main__':
     insName = 's100_3_4_max100_2.5_1.2_1.2_1.2_thre0.1_MPDAins.dat'
     pro = ins.Instance(BaseDir + '//data\\' + insName)    
     con = ConstructMethodBase(pro)
+#    con._
+#    con.
     print(con._solution)
     dic = dict()
     dic[1] = 1090

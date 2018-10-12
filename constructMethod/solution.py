@@ -36,7 +36,7 @@ class Solution(object):
 #        self.encode = np.zeros()
         self.objective = sys.float_info.max
         self.encode = np.zeros((self._instance.robNum,self._instance.taskNum),dtype =int)
-
+        self.encode[:][:] = sys.maxsize
 #        self.variables = FixedLengthArray(problem.nvars)
 #        self.objectives = FixedLengthArray(problem.nobjs)
 #        self.constraints = FixedLengthArray(problem.nconstrs)

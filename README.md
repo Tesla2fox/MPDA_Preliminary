@@ -21,7 +21,7 @@ MPDA_Preliminary
 12. BAH: add job to the end of sequence 
 13. BIH: insert in the sequence
 14. TRIPS: triplet append {from paper `New heuristics for the no-wait flowshop with sequence-dependent setup times problem`}
-15. The benchmark can be constructed by the method of paper `New Benchmark Instances for the Capacitated Vehicle Routing Problem`
+15. The benchmark can be constructed by the method of paper `New Benchmark Instances for the Capacitated Vehicle Routing Problem`, which has been completed.
 16. When a task point has been completed, the task point's index in other permutations should be deleted.
 17. Draw some  gantt picture
 18. 

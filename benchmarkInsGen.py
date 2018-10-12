@@ -156,9 +156,15 @@ def writeConf(robNum,taskNum,combConf):
     robAbiLst = generateRate(robNum,combConf[2],robPosLst)
     robPosLst  = [(robPos.x,robPos.y) for robPos in robPosLst]  
     robVelLst = [1 for x in range(robNum)]
-
+    sum_robAbi  = sum(robAbiLst)
     taskPosLst = generatePos(taskNum,combConf[1])
     taskRateLst = generateRate(taskNum,combConf[3],taskPosLst)
+# deal with the unable instance
+    for i in range(len(taskRateLst)):
+        taskRate = taskRateLst[i]
+        while taskRate*robNum/2 > sum_robAbi:
+            taskRate *= random.uniform(0.5,1)
+        taskRateLst[i] = taskRate
     taskPosLst  = [(taskPos.x,taskPos.y) for taskPos in taskPosLst]  
     taskStateLst = [1 for i in range(taskNum)]    
     comp_threhold = 0.1

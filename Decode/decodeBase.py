@@ -62,7 +62,7 @@ class DecodeBase:
     def __init__(self,insFileName):
         readCfg = Read_Cfg(insFileName)
         self.robNum = int(readCfg.getSingleVal('robNum')) 
-        self.taskNum = int(readCfg.getSingleVal('tskNum'))
+        self.taskNum = int(readCfg.getSingleVal('taskNum'))
         self.threhold = readCfg.getSingleVal('comp_threhold')
         self.robAbiLst  = []
         self.robVelLst = []

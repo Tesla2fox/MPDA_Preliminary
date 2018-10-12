@@ -106,11 +106,11 @@ class DecodeSS(db.DecodeBase):
     def __init__(self,insFileName):
         super(DecodeSS,self).__init__(insFileName)
         degFileDir = BaseDir + '//debug//'
-        ins = self.insFileName.split('data\\')
+        ins = self.insFileName.split('benchmark\\')
         degFileName = degFileDir + 'deg_SS' + ins[1]
         self.deg = open(degFileName,'w')         
         degFileDir = BaseDir + '//debug//'
-        ins = self.insFileName.split('data\\')
+        ins = self.insFileName.split('benchmark\\')
         degFileName = degFileDir + 'deg2_SS' + ins[1]
         self.deg2 = open(degFileName,'w')
     def decode(self):

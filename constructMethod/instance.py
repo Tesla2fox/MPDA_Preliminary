@@ -32,7 +32,7 @@ class Instance(object):
         self.insFileName = insFileName
         readCfg = Read_Cfg(insFileName)
         self.robNum = int(readCfg.getSingleVal('robNum')) 
-        self.taskNum = int(readCfg.getSingleVal('tskNum'))
+        self.taskNum = int(readCfg.getSingleVal('taskNum'))
         self.threhold = readCfg.getSingleVal('comp_threhold')
         self.robAbiLst  = []
         self.robVelLst = []
@@ -89,6 +89,10 @@ class Instance(object):
         dis = self.rob2taskDisMat[robID][taskID]
         dis_time = dis/self.robVelLst[robID]
         return dis_time
+    def calTask2TaskPeriod(self,robID,taskID1,taskID2):
+        dis = self.taskDisMat[taskID1][taskID2]
+        period = dis/self.robVelLst[robID]
+        return period
         
     
 if __name__ =='__main__':
