@@ -54,7 +54,8 @@ class Task():
         incre = changeDur *self.cRate
         
         if incre > 709:
-            return False         
+            return False
+#        print(self.cState)         
         self.cState = self.cState*math.exp(changeDur*self.cRate)                
         valid =  True
         if(self.cState >sys.float_info.max ):

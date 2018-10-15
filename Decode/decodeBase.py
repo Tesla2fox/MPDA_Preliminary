@@ -121,11 +121,13 @@ class DecodeBase:
             rob.ability = self.robAbiLst[i]
             rob.vel = self.robVelLst[i]
             rob.encodeIndex = 0
-            rob.taskID,rob.encodeIndex = self.getRobTask(robID = i, encodeIndex = 0)
-            dis  = self.rob2taskDisMat[i][rob.taskID]            
-            dis_time = dis/rob.vel
+            rob.taskID,rob.encodeIndex,stopBool = self.getRobTask(robID = i, encodeIndex = 0)
+            if not stopBool:                
+                dis  = self.rob2taskDisMat[i][rob.taskID]            
+                dis_time = dis/rob.vel
+                rob.arriveTime = dis_time
+            rob.stopBool = stopBool
             rob.stateType = RobotState['onRoad']
-            rob.arriveTime = dis_time
             rob.leaveTime = 0
             self.robotLst.append(rob)
         
@@ -224,9 +226,10 @@ class DecodeBase:
                     self.updateRobLeaveCond(actionID)
                     self.robotLst[actionID].cmpltTaskLst.append(taskID)
                     self.robotLst[actionID].cmpltTaskID = taskID
-#                self.deg.write('taskID '+ str(taskID) +' has been cmplt\n')
+                self.deg.write('taskID '+ str(taskID) +' has been cmplt\n')
 #                self.deg.write('leaveChanged\n')
-#                self.saveRobotInfo()
+                self.saveRobotInfo()
+                
                 task.cmpltTime = rob.leaveTime
                 self.decodeTime =  rob.leaveTime
 #                print(taskID,' cmpltTime ', task.cmpltTime)
@@ -376,14 +379,18 @@ class DecodeBase:
         '''
         get the robot next task ID
         '''
-        while True:            
+        stopBool = False
+        while True:
+            if encodeIndex == self.taskNum:
+                stopBool = True
+                break
             taskID = self.encode[robID][encodeIndex]
             if taskID < 0:
                 encodeIndex += 1
                 continue
             else:
-                break            
-        return taskID,encodeIndex
+                break                        
+        return taskID,encodeIndex,stopBool
     def calMakespan(self):
 # makespan for the MPDA problem        
         leaveTimeLst = [rob.leaveTime for rob in self.robotLst]
