@@ -69,12 +69,13 @@ class Instance(object):
         return True
     def evaluate(self,encode):
         self.decode.encode = encode
-        makespan = self.decode.decode()
 
+#        makespan = self.decode.decode()
+        
         try:
             makespan = self.decode.decode()
         except Exception as e:
-#            print(e)
+            print(e)
             
             makespan = sys.float_info.max
         return makespan

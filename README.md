@@ -13,7 +13,7 @@ MPDA_Preliminary
 4. evaluate the time of decoding process
 5. write constructive Method for the MPDA
 6. the k-means cluster
-7. the Gauss can not fit the data 
+7. the Gauss can not fit the data 06[
 8. the performance of `Gauss EDA method` is terrible
 9. the LKH problem
 10. Neighborhood insertion search
@@ -24,7 +24,12 @@ MPDA_Preliminary
 15. The benchmark can be constructed by the method of paper `New Benchmark Instances for the Capacitated Vehicle Routing Problem`, which has been completed.
 16. When a task point has been completed, the task point's index in other permutations should be deleted.
 17. Draw some  gantt picture
-18. 
+18. In constructive method, the forecast calculation can be optimized.
+19. The information of  the forecast calculation process can be used in  the real process.
+20. In the constructive method, every robot should be allocated for task.
+21. In the constructive method, robots should not go to a task point which has been completed.
+22. The constructive method should avoid the situations which all robots are stuck
+23. The two makespans are not equal. And there are some bugs in the delete progress.
 
 ---
 

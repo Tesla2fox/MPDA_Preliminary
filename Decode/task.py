@@ -41,6 +41,7 @@ class Task():
 #        print(self.threhod)
 #        print(self.cState)
         if e_dur <0:
+            raise Exception('Bug dur')
             print('bug dur')
         return e_dur
 # =============================================================================
@@ -80,7 +81,7 @@ class Task():
     def __str__(self):
         return 'initState = '+ str(self.initState)+ ' initRate = '+str(self.initRate)+' cState = '+str(self.cState)\
         +' cRate = '+str(self.cRate)+' changeRateTime = '+str(self.changeRateTime) + ' cmplt  = '+ str(self.cmplt)\
-        +' threhod '+ str(self.threhod)
+        +' threhod '+ str(self.threhod) +' cmpltTime = ' + str(self.cmpltTime)
     def variableInfo(self):
         return self.cState,self.cRate,self.changeRateTime,self.cmplt,self.cmpltTime
     def recover(self,cState,cRate,changeRateTime,cmplt,cmpltTime):

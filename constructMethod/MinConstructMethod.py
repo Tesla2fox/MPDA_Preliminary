@@ -34,8 +34,17 @@ import collections
 OrderTupleClass = collections.namedtuple('OrderTupleClass',['robID','taskID','vaild','syn_order'])
 OnTaskInfoClass = collections.namedtuple('OnTaskInfoClass',['vaild','time','rate'])
 TaskInfoClass = collections.namedtuple('TaskInfoClass',['changeRateTime','cRate','robID','robAbi'])
+'''
+TaskInfoUpdateClass is used for __realArrive function to update the task information
+'''
+TaskInfoUpdateClass = collections.namedtuple('TaskInfoUpdateClass',['changeRateTime','cRate','cmpltTime','cState'])
 INF_NUM = sys.float_info.max
 INF_INT_NUM = sys.maxsize
+
+
+'''
+RobotState do not have any use in minConstructMethod
+'''
 
 
 class MinConstructMethod(ConstructMethodBase):
@@ -66,7 +75,8 @@ class MinConstructMethod(ConstructMethodBase):
             self.constructUint()
             self.deg.write('weight = '+str(self.c_weight) +'\n')
             try:
-                self.constructUint()
+                pass
+#                self.constructUint()
             except Exception as e:
                 print(e)
                 self.deg.write(str(e) + '\n')
@@ -79,10 +89,12 @@ class MinConstructMethod(ConstructMethodBase):
                 if makespan != self._solution.objective:
                     print(self.c_weight)
                     print(self._instance.taskNum)
-                    print(self._instance.decode.taskLst[0].compltTime)
+#                    print(self._instance.decode.taskLst[0].cmpltTime)
                     for i in range(self._instance.taskNum):
-                        print(self._instance.decode.taskLst[i].cmpltTime)
-                    raise Exception('))))')
+                        self.deg.write( 'taskID = ' + str(self._instance.decode.taskLst[i].cmpltTime) + '\n')
+                    self.deg.write('decode Encode ' + str(self._solution))
+                    self.deg.flush()
+                    raise Exception('the two makespans are not equal')
                 if self._solution.objective < self._opt_solution.objective:
                     self._opt_solution = self._solution
             break
@@ -110,14 +122,15 @@ class MinConstructMethod(ConstructMethodBase):
                     onTaskOrder = self.onTaskOrderDic[key]
                     syntheticalOrder = self.c_weight * onRoadOrder + (1-self.c_weight) * onTaskOrder
                     orderLst.append(OrderTupleClass(key[0],key[1],self.onTaskPeriodDic[key].vaild,syntheticalOrder))
-                minUnit = min(orderLst, key = cmp_to_key(self.__cmpSynOrder))                
+                minUnit = min(orderLst, key = cmp_to_key(self.__cmpSynOrder))
+                                
 #                    for key in self.onTaskOrderDic:
 #                    orderTupel.RobID
 #                print(orderLst)
                 if len(self._delDict) !=0:                    
-                    print(self._delDict)
+                    print('_delDict = ',self._delDict)
                     raise Exception('asdjlkfj')
-                if (minUnit.robID,minUnit.taskID) in self._delDict:
+                if (minUnit.robID,minUnit.taskID) in self._delDict.keys():
                     raise Exception('asdjlkfj')
 #                self._delDict.has           
                 if self._degBool:
@@ -169,6 +182,7 @@ class MinConstructMethod(ConstructMethodBase):
         allInvaild = True
         preCmpltTaskTime = [[] for i in range(self._instance.taskNum)]
         
+        self.taskVariableDic = dict()
         
         for robID in range(self._instance.robNum):
             for taskID in range(self._instance.taskNum):
@@ -194,7 +208,7 @@ class MinConstructMethod(ConstructMethodBase):
                         allInvaild = False
                     unit = ((robID,taskID),onTaskPeriod)
                     preOnTaskPeriodLst.append(unit)
-                    preCmpltTaskTime[taskID].append(self._robLst[robID].leaveTime + onRoadPeriod + onTaskPeriod)
+                    preCmpltTaskTime[taskID].append(self._robLst[robID].leaveTime + onRoadPeriod + onTaskPeriod.time)
                     
         self.onRoadPeriodDic = {unit[0]: unit[1] for unit in preOnRoadPeriodLst}
         self.onRoadOrderDic = self.sort(preOnRoadPeriodLst,reverse = False)
@@ -206,7 +220,10 @@ class MinConstructMethod(ConstructMethodBase):
             if self.cmpltTask[taskID] == False:
                 if len(preCmpltTaskTime[taskID]) == 0:
                     self.cmpltTask[taskID] = True
-            
+#        print(preCmpltTaskTime)
+        '''
+        判断一个任务点是否完成
+        '''
 #        print(self.onTaskOrderDic)
 #        print(self.onTaskPeriodDic)
 
@@ -219,40 +236,47 @@ class MinConstructMethod(ConstructMethodBase):
         
 #        print(self.onRoadPeriodDic)
 #        print(self.onRoadOrderDic)
+    '''
+    this function can be optimized.
+    '''
     def __sortPrePeriodUnableTask(self,taskID):
         '''
         input taskID
         return onRoad and ontask period order for the unableTask        
         '''
+        self.__sortPrePeriod()
+        self.__saveOnTaskOrderDic()
         self.onRoadOrderUnableDic = dict()
         preOnRoadPeriodLst = []        
         self.onTaskOrderUnableDic = dict()
-        preOnTaskPeriodLst = []
+        preOnTaskPeriodLst = []        
         for i in range(self._instance.robNum):
             if (i,taskID) not in self._allocatedLst:
-                onRoadPeriod = self._calRob2TaskPeriod(i,taskID)
+                onRoadPeriod = self.onRoadPeriodDic[(i,taskID)]
                 unit = ((i,taskID),onRoadPeriod)
                 preOnRoadPeriodLst.append(unit)
-                onTaskPeriod = self._calRobOnTaskPeriod(onRoadPeriod,i,taskID) 
+                onTaskPeriod = self.onTaskPeriodDic[(i,taskID)]
                 unit = ((i,taskID),onTaskPeriod)
-                preOnTaskPeriodLst.append(unit)                
-
+                preOnTaskPeriodLst.append(unit)
         self.onRoadUnableDic = {unit[0]: unit[1] for unit in preOnRoadPeriodLst}
         self.onRoadOrderUnableDic = self.sort(preOnRoadPeriodLst,reverse = False)
         self.onTaskUnableDic = {unit[0]: unit[1] for unit in preOnTaskPeriodLst}        
-        self.onTaskOrderUnableDic = self.sort(preOnTaskPeriodLst,reverse = False)
-        
+        self.onTaskOrderUnableDic = self.sort(preOnTaskPeriodLst,keyFunc = cmp_to_key(self.__cmpCmpltTime)\
+                                              ,reverse = False)
+                
+#        pass        
     def _calRobOnTaskPeriod(self,onRoadPeriod,robID,taskID):
 #        onRoadPeriod = self.onRoadPeriodDic[(robID,taskID)]
         rob = self._robLst[robID]
         robAbi = rob.ability
         calTask = copy.deepcopy(self._taskLst[taskID])
         if calTask.changeRateTime > rob.leaveTime + onRoadPeriod:
-            print(rob.leaveTime + onRoadPeriod)
+#            print(rob.leaveTime + onRoadPeriod)
 #            raise Exception('changeRateTime')
             '''
             this part need process
             '''
+                
             calTask.recover(*self._taskInitInfo[taskID])
             taskInfo = copy.deepcopy(self._taskInfoLst[taskID])
 #            print(taskInfo)
@@ -266,14 +290,13 @@ class MinConstructMethod(ConstructMethodBase):
             _taskInforLst is sorted by the arriveTime 
             '''
             delIndexLst = []
+            
             for i in range(len(taskInfo)):
                 taskInfoUnit = taskInfo[i]
                 if calTask.cmpltTime < taskInfoUnit.changeRateTime:                    
                     delIndexLst.append((taskInfoUnit.robID,taskID))
-                    print('cmpltTime = ',calTask.cmpltTime,' ',taskInfoUnit.changeRateTime) 
                     continue
 #                    break
-#                    raise('bug is here')                
                 calTask.calCurrentState(taskInfoUnit.changeRateTime)
                 calTask.cRate = calTask.cRate - taskInfoUnit.robAbi
                 if calTask.cRate >= 0:
@@ -281,39 +304,32 @@ class MinConstructMethod(ConstructMethodBase):
                     calTask.cmpltTime = INF_NUM
                 else:
                     executePeriod = calTask.calExecuteDur()
-                    calTask.cmpltTime = taskInfoUnit.changeRateTime + executePeriod
+                    calTask.cmpltTime = taskInfoUnit.changeRateTime + executePeriod                    
             executePeriod = calTask.cmpltTime - rob.leaveTime - onRoadPeriod 
             resTuple = OnTaskInfoClass(vaild = True, time = executePeriod , rate = calTask.cRate)
 
             if len(delIndexLst):
-                print(delIndexLst)
+                print('delLst = ', delIndexLst)
                 self._delDict[(robID,taskID)] = delIndexLst
-                print(self._delDict)
-#                raise Exception('0-0-')             
-#            if i != len(taskInfo) -1:
-#                delIndexLst.append(tuple())
-            
-            return resTuple
-#                    cRate = 
-#                calTask.
-#            for taskInfo in self._taskInfoLst:
-                
-            print(self._taskLst[taskID])
-            raise Exception('ppppp')
-            
-            return OnTaskInfoClass(False,INF_NUM,INF_NUM)
-        vaild = calTask.calCurrentState(rob.leaveTime + onRoadPeriod)
-        cRate = sys.float_info.max
-        executePeriod = sys.float_info.max
-        if vaild == True:
-            calTask.cRate = calTask.cRate - robAbi
-            if calTask.cRate >=0:
-                executePeriod = sys.float_info.max
-            else:
-                executePeriod = calTask.calExecuteDur()
-            cRate = calTask.cRate
-        return OnTaskInfoClass(vaild,executePeriod,cRate)
-#        return     
+                print('_delDict = ', self._delDict)
+#                raise Exception('askldj')
+        else:
+#            print(rob.leaveTime + onRoadPeriod)
+#            print(calTask.cmpltTime)
+            vaild = calTask.calCurrentState(rob.leaveTime + onRoadPeriod)
+#            print('cState = ',calTask.cState)
+            cRate = sys.float_info.max
+            executePeriod = sys.float_info.max
+            if vaild == True:
+                calTask.cRate = calTask.cRate - robAbi
+                if calTask.cRate >=0:
+                    executePeriod = sys.float_info.max
+                else:
+                    executePeriod = calTask.calExecuteDur()
+                cRate = calTask.cRate
+            resTuple = OnTaskInfoClass(vaild,executePeriod,cRate)
+        self.taskVariableDic[(robID,taskID)] = calTask.variableInfo()        
+        return resTuple
     def _calRob2TaskPeriod(self,robID,taskID):
         '''
         calculate from the robot's position to the task's position.
@@ -367,28 +383,23 @@ class MinConstructMethod(ConstructMethodBase):
             encodeIndLst[robID] += 1
 #        print(resSol)
         return resSol
-    def __updateSol(self,orderUnit ):
-        rob = self._robLst[orderUnit.robID]
-        self._solution[(orderUnit.robID,rob.encodeIndex)] = orderUnit.taskID
+    def __updateSol(self,orderUnit):
+#        rob = self._robLst[orderUnit.robID]
         '''
         this part need some change        
         '''
-        if rob.encodeIndex != 0:
-            self.cmpltTask[rob.taskID] = True
-            
-        rob.taskID = orderUnit.taskID
-        rob.stateType = RobotState.onTask
-            
-        rob.encodeIndex += 1
-        rob.arriveTime  = rob.leaveTime + self.onRoadPeriodDic[(orderUnit.robID,orderUnit.taskID)]
-        self._allocatedLst.append((orderUnit.robID,orderUnit.taskID))
+#        rob.stateType = RobotState.onTask
+                
+#        rob.arriveTime  = rob.leaveTime + self.onRoadPeriodDic[(orderUnit.robID,orderUnit.taskID)]
+        task = self._taskLst[orderUnit.taskID]
         self.__realArriveEvent(orderUnit.robID,orderUnit.taskID)
-        while self._taskLst[orderUnit.taskID].cmpltTime == sys.float_info.max:
+
+        while task.cmpltTime == sys.float_info.max:
             '''
-            let some robots go that task point to make sure it can be completed
+            let some robots go that task point 
+            to make sure it can be completed
             '''
-            onTaskRobIDLst = self.__onTaskRobID(orderUnit.taskID)
-            
+            onTaskRobIDLst = self.__onTaskRobID(orderUnit.taskID)            
             if len(onTaskRobIDLst) == self._instance.robNum:
 #                print(self._taskLst[orderUnit.taskID].cmpltTime)
 #                print(self._taskLst[orderUnit.taskID].cRate)
@@ -407,68 +418,63 @@ class MinConstructMethod(ConstructMethodBase):
                 syn_order =  self.c_weight * onRoadUnableOrder + (1 - self.c_weight) * onTaskUnableOrder
                 orderLst.append(OrderTupleClass(key[0],key[1],self.onTaskUnableDic[key].vaild,syn_order))
             minUnit = min(orderLst,key = cmp_to_key(self.__cmpSynOrder))
-            complementRob = self._robLst[minUnit.robID]
-            self._solution[(minUnit.robID,complementRob.encodeIndex)] = minUnit.taskID
             '''
             this part need some change
             '''
-            if complementRob.encodeIndex != 0:
-                self.cmpltTask[complementRob.taskID] = True
-            complementRob.taskID = minUnit.taskID
-            complementRob.stateType = RobotState.onTask
-            complementRob.encodeIndex += 1
-            self._allocatedLst.append((minUnit.robID,minUnit.taskID))
-            complementRob.arriveTime  = complementRob.leaveTime + self.onRoadUnableDic[(minUnit.robID,minUnit.taskID)]
-            self.__realArriveEvent(minUnit.robID,minUnit.taskID)        
-#            print(self._solution)
+            self.__realArriveEvent(minUnit.robID,minUnit.taskID) 
         self.deg.write('taskID = ' + str(orderUnit.taskID) + '\n')
         self.deg.write('updateOver = ' + str(self._taskLst[orderUnit.taskID].cmpltTime) + '\n')
 #        print('updateOver',self._taskLst[orderUnit.taskID].cmpltTime)
         
-        
-        
     def __realArriveEvent(self,robID,taskID):
         rob = self._robLst[robID]
+        if rob.encodeIndex != 0:
+            self.cmpltTask[rob.taskID] = True            
+        rob.taskID = taskID
+        self._solution[(robID,rob.encodeIndex)] = taskID
+        rob.encodeIndex += 1
+        onRoadPeriod = self.onRoadPeriodDic[(robID,taskID)]
+        '''
+        onTaskPeriod contains three attributes
+        '''
+        onTaskPeriod = self.onTaskPeriodDic[(robID,taskID)].time
+        self._allocatedLst.append((robID,taskID))
         task = self._taskLst[taskID]
-        leaveTime = INF_NUM
-#        rob.arriveTime
         self.deg.write('real rob = ' + str(robID) +' real task = ' + str(taskID) + '\n')
+        rob.arriveTime = rob.leaveTime + onRoadPeriod        
         taskInfo = TaskInfoClass(robID = robID,robAbi = rob.ability,changeRateTime = rob.arriveTime, cRate = task.cRate)
         self._taskInfoLst[taskID].append(taskInfo)
+        '''
+        此处可以优化
+        '''
         
-        if task.cmpltTime < rob.arriveTime:
-            raise Exception('here is a bug')
+#        self._taskInfoLst[taskID] = sorted(self._taskInfoLst[taskID], key = lambda x : x.changeRateTime)
+        
+        self.deg.write(str(self._taskInfoLst[taskID]) + '\n')
+#        task.cRate = task.cRate - rob.ability
+#        task.changeRateTime = self._taskInfoLst[taskID][-1].changeRateTime 
+        
+        task.recover(*self.taskVariableDic[robID,taskID])
+        if task.cRate >= 0:
+            task.cmpltTime = INF_NUM
+            
         else:
-            validStateBool = task.calCurrentState(rob.arriveTime)
-#            print('real robID = ',robID)
-#            print('real taskID = ',taskID)
-            if not validStateBool:
-#                rob.arriveTime 
-                print('real robID = ',robID)
-                print('real taskID = ',taskID)
-                print('cRate = ', task.cRate)
-                print('arriveTime = ', rob.arriveTime,'changeRateTime',task.changeRateTime)
-                print('cState = ', task.cState)
-                print(rob.arriveTime )
-                raise Exception('inValidStateBool')
-                
-            task.cRate = task.cRate - rob.ability
-            if task.cRate >= 0:
-                task.cmpltTime = INF_NUM
-                return
-            else:
-                rob.executeDur = task.calExecuteDur()
-                rob.executeBool = False
-                leaveTime  = rob.arriveTime + rob.executeDur
-                coordLst = self.findCoordRobot(robID)
-                for coordID in coordLst:
-                    coordRob = self._robLst[coordID]
-                    coordRob.leaveTime = leaveTime
-                    coordRob.executeDur = coordRob.leaveTime - coordRob.arriveTime
-            rob.leaveTime = leaveTime
-            rob.stateType = RobotState['onTask']
+            rob.executeDur = onTaskPeriod
+            rob.executeBool = False
+            leaveTime = rob.arriveTime + rob.executeDur
             task.cmpltTime = leaveTime
-        
+#            print(leaveTime)
+#            print(task.cmpltTime)
+            coordLst = self.findCoordRobot(robID)
+            for coordID in coordLst:
+                coordRob = self._robLst[coordID]
+                coordRob.leaveTime = leaveTime
+                coordRob.executeDur = coordRob.leaveTime - coordRob.arriveTime                
+        rob.leaveTime = task.cmpltTime
+        self.deg.write('taskID = ' + str(task)+'\n')
+        self.deg.write(str(self._solution)+'\n')
+        self.deg.flush()
+        return         
     def findCoordRobot(self,robID):
         '''
         find robots which are corrdinated with the robot A
@@ -480,8 +486,8 @@ class MinConstructMethod(ConstructMethodBase):
             if i == robID:
                 continue
 #            crob = self.robotLst[i]
-            if self._robLst[i].stateType == RobotState['onRoad']:
-                continue
+#            if self._robLst[i].stateType == RobotState['onRoad']:
+#                continue
             if self._robLst[i].stopBool == True:
                 continue
             if self._robLst[i].taskID == taskID:
