@@ -77,7 +77,7 @@ class DecodeBase:
         readCfg.get('rob2tskDis',disLst)
         for i in range(self.robNum):
             for j in range(self.taskNum):
-                self.rob2taskDisMat[i][j] = disLst[i*self.robNum+j]
+                self.rob2taskDisMat[i][j] = disLst[i*self.taskNum+j]
                 
         self.taskDisMat = np.zeros((self.taskNum,self.taskNum))
         disLst = []
@@ -95,7 +95,8 @@ class DecodeBase:
         self.robInfoLst = []
         self.taskInfoLst = []
         self.decodeTimeLst = []
-                
+        
+        self._degBool =  False        
     def generateRandEncode(self):
         for i in range(self.robNum):
             permLst = [x for x in range(self.taskNum)]
@@ -226,17 +227,18 @@ class DecodeBase:
                     self.updateRobLeaveCond(actionID)
                     self.robotLst[actionID].cmpltTaskLst.append(taskID)
                     self.robotLst[actionID].cmpltTaskID = taskID
-                self.deg.write('taskID '+ str(taskID) +' has been cmplt\n')
-#                self.deg.write('leaveChanged\n')
-                self.saveRobotInfo()
+                if self._degBool:                    
+                    self.deg.write('taskID '+ str(taskID) +' has been cmplt\n')
+                    #                self.deg.write('leaveChanged\n')
+                    self.saveRobotInfo()
                 
                 task.cmpltTime = rob.leaveTime
                 self.decodeTime =  rob.leaveTime
 #                print(taskID,' cmpltTime ', task.cmpltTime)
             if cal_type == CalType['endCond']:
                 invalidFitness = True
-#                raise Exception('end-Condition-bug, robots have been stuck')
-                raise InvalidStateException()
+                raise Exception('end-Condition-bug, robots have been stuck')
+#                raise InvalidStateException()
                 break
             if cal_type  == CalType['backCond']:
                 backBool = True

@@ -58,7 +58,7 @@ class StaticConstructMethod(ConstructMethodBase):
                 solSet.append(resSolution)
             if resSolution.objective < self._solution.objective:
                 self._solution = resSolution
-        print(len(solSet))
+#        print(len(solSet))
         return self._solution
     def Gconstruct(self,weightNum = 11,cmpltReverse = False):
         '''
@@ -87,7 +87,7 @@ class StaticConstructMethod(ConstructMethodBase):
                 solSet.append(resSolution)
             if resSolution.objective < self._solution.objective:
                 self._solution = resSolution
-        print(len(solSet))
+#        print(len(solSet))
         return self._solution    
     def __sortPreFirstArrTime(self):
         self.arrDic = dict()
@@ -112,11 +112,11 @@ class StaticConstructMethod(ConstructMethodBase):
 #        preCompTupleLst[-1] = (((4,10),(False,199,1)))
         
 #        print('begin _____ end')
-        print(preCmpltTupleLst)
+#        print(preCmpltTupleLst)
         self.cmpltDic =  self.sort(preCmpltTupleLst,keyFunc = cmp_to_key(self.__cmpCmpltTime)\
                                    ,reverse = cmpltReverse)
 #        print(preCompTupleLst)
-        print(self.cmpltDic)
+#        print(self.cmpltDic)
 #        print(preCompTupleLst)
     def __sortPreFirstExecuteTime(self,cmpltReverse = False):
 #        preFirstComTime = []
@@ -164,8 +164,8 @@ class StaticConstructMethod(ConstructMethodBase):
         return 'StaticConstructMethod\n' + str(self._solution)
     
 if __name__ == '__main__':    
-    insName = 's100_3_4_max100_2.5_1.2_1.2_1.2_thre0.1_MPDAins.dat'
-    pro = ins.Instance(BaseDir + '//data\\' + insName)    
+    insName = '14_14_CENTRAL_CLUSTERED_LVLCV_LVLCV_thre0.1MPDAins.dat'
+    pro = ins.Instance(BaseDir + '//benchmark\\' + insName)    
     con = StaticConstructMethod(pro)
 #    print(pro)
 #    random.seed(2)

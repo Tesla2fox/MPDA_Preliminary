@@ -50,13 +50,9 @@ class Task():
 # =============================================================================
     def calCurrentState(self,time):
         changeDur = time - self.changeRateTime
-#        print(changeDur)
-#        print(self.cState)
-        incre = changeDur *self.cRate
-        
+        incre = changeDur * self.cRate        
         if incre > 709:
             return False
-#        print(self.cState)         
         self.cState = self.cState*math.exp(changeDur*self.cRate)                
         valid =  True
         if(self.cState >sys.float_info.max ):

@@ -45,10 +45,14 @@ class Instance(object):
         self.rob2taskDisMat = np.zeros((self.robNum,self.taskNum))
         disLst = []
         readCfg.get('rob2tskDis',disLst)
+#        print(self.rob2taskDisMat)
+    
         for i in range(self.robNum):
             for j in range(self.taskNum):
-                self.rob2taskDisMat[i][j] = disLst[i*self.robNum+j]
-                
+#                print(i,j)
+#                print(i*self.robNum+j)
+#                print(disLst[i*self.robNum+j])
+                self.rob2taskDisMat[i][j] = disLst[i*self.taskNum+j]
         self.taskDisMat = np.zeros((self.taskNum,self.taskNum))
         disLst = []
         readCfg.get('tskDis',disLst)
@@ -74,9 +78,9 @@ class Instance(object):
         
         try:
             makespan = self.decode.decode()
-        except Exception as e:
-            print(e)
-            
+            pass
+        except Exception as e:            
+            print(e)            
             makespan = sys.float_info.max
         return makespan
     def genNoBackTrackEncode(self,encode):        

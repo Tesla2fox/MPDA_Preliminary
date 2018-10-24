@@ -30,6 +30,8 @@ MPDA_Preliminary
 21. In the constructive method, robots should not go to a task point which has been completed.
 22. The constructive method should avoid the situations which all robots are stuck
 23. The two makespans are not equal. And there are some bugs in the delete progress.
+24. The `sortPrePeiod` function can be optimized. Every time only update a part of `onRoad or onTask` dict.
+25. How to select a robot to complete an unable task? 1.maybe  can use the bias to measure
 
 ---
 
