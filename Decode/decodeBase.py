@@ -143,6 +143,8 @@ class DecodeBase:
             self.taskLst.append(task)
             
         self.decodeTime = 0
+        self.validStateBool = True
+
     def decodeProcessor(self):
         invalidFitness = False
         backBool = False
@@ -237,8 +239,8 @@ class DecodeBase:
 #                print(taskID,' cmpltTime ', task.cmpltTime)
             if cal_type == CalType['endCond']:
                 invalidFitness = True
-                raise Exception('end-Condition-bug, robots have been stuck')
-#                raise InvalidStateException()
+#                raise Exception('end-Condition-bug, robots have been stuck')
+                raise RobotStuckException()
                 break
             if cal_type  == CalType['backCond']:
                 backBool = True
@@ -264,8 +266,9 @@ class DecodeBase:
         
         if not validStateBool:
             cal_type = CalType['stateInvalidCond']
+            self.validStateBool = False
 #            raise Exception('stateInvalidCond-bug, the state is too enormous')
-            raise RobotStuckException()            
+            raise InvalidStateException()            
 #        print(cal_type)        
         return cal_type
 #            break

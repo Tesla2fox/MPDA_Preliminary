@@ -29,7 +29,8 @@ class RandConstructMethod(ConstructMethodBase):
         super(RandConstructMethod,self).__init__(instance)
     @CalPeriod()
     def construct(self,sampleTimes = 10000):
-        for i in range(sampleTimes):            
+        for i in range(sampleTimes):
+            print(i)            
             resSolution = self.generateRandSol()
             resSolution.evaluate()
             if resSolution.objective < self._solution.objective:
@@ -49,8 +50,8 @@ class RandConstructMethod(ConstructMethodBase):
     
 if __name__ == '__main__':
     
-    insName = 's100_3_4_max100_2.5_1.2_1.2_1.2_thre0.1_MPDAins.dat'
-    pro = ins.Instance(BaseDir + '//data\\' + insName)    
+    insName = '20_20_CLUSTERED_RANDOMCLUSTERED_SVLCV_LVSCV_thre0.1MPDAins.dat'
+    pro = ins.Instance(BaseDir + '//benchmark\\' + insName)    
     con = RandConstructMethod(pro)
 #    print(pro)
 #    random.seed(2)

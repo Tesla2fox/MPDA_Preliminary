@@ -75,7 +75,12 @@ class DecodeRC(db.DecodeBase):
         rob = self.robotLst[actionID]
         while True:                       
             if len(rob.cmpltTaskLst) == 0:
+                if encodeInd == self.taskNum - 1:
+                    rob.stopBool = True
+                    break
+
                 taskID = self.encode[actionID][encodeInd]
+
                 if taskID < 0:
                     encodeInd  += 1
                     continue
@@ -133,13 +138,14 @@ class DecodeSS(db.DecodeBase):
                         break
                 self.eventRecover()
                 continue
+#                print('das')
             else:
                 break
         if cal_type == CalType.stateInvalidCond:
             makespan = sys.float_info.max
         else:
             makespan = self.calMakespan()
-        self.saveEncode()
+#        self.saveEncode()
         return makespan
     def saveEventInMemory(self):        
         '''
@@ -190,6 +196,9 @@ class DecodeSS(db.DecodeBase):
         rob = self.robotLst[actionID]
         while True:                       
             if len(rob.cmpltTaskLst) == 0:
+                if encodeInd == self.taskNum - 1:
+                    rob.stopBool = True
+                    break
                 taskID = self.encode[actionID][encodeInd]
                 if taskID < 0:
                     encodeInd  += 1

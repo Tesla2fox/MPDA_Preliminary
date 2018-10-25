@@ -129,7 +129,7 @@ class StaticConstructMethod(ConstructMethodBase):
 #                    if executeUnit                        
                     preCmpltTupleLst.append(((i,j),executeUnit))
 #        preCompTupleLst[-1] = (((4,10),(False,199,1)))
-        
+
 #        print('begin _____ end')
         
         self.cmpltDic =  self.sort(preCmpltTupleLst,keyFunc = cmp_to_key(self.__cmpCmpltTime)\
@@ -164,10 +164,11 @@ class StaticConstructMethod(ConstructMethodBase):
         return 'StaticConstructMethod\n' + str(self._solution)
     
 if __name__ == '__main__':    
-    insName = '14_14_CENTRAL_CLUSTERED_LVLCV_LVLCV_thre0.1MPDAins.dat'
+    insName = '20_20_CLUSTERED_RANDOMCLUSTERED_SVLCV_LVSCV_thre0.1MPDAins.dat'
     pro = ins.Instance(BaseDir + '//benchmark\\' + insName)    
     con = StaticConstructMethod(pro)
 #    print(pro)
 #    random.seed(2)
     print(con.construct(cmpltReverse = True))
+    print(con.construct(cmpltReverse = False))
     print(con.Gconstruct(cmpltReverse = True))

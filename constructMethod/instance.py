@@ -25,7 +25,7 @@ from readCfg.read_cfg import Read_Cfg
 import readCfg.read_cfg as rd
 import numpy as np
 from Decode.decode import DecodeSS
-
+from Decode.decodeBase import RobotStuckException,InvalidStateException
 
 class Instance(object):
     def __init__(self, insFileName = 'wtf'):
@@ -79,9 +79,12 @@ class Instance(object):
         try:
             makespan = self.decode.decode()
             pass
-        except Exception as e:            
-            print(e)            
+        except InvalidStateException:
             makespan = sys.float_info.max
+        except RobotStuckException:
+            makespan = sys.float_info.max            
+#        except Exception as e:                        
+#            print(e)            
         return makespan
     def genNoBackTrackEncode(self,encode):        
         resEncode = np.zeros((self.robNum,self.taskNum),dtype =int)

@@ -72,9 +72,9 @@ class MinConstructMethodBase(ConstructMethodBase):
         for  weight in weightLst:
             self._solution = sol.Solution(self._instance)
             self.c_weight = weight                        
-            self.constructUint()
+#            self.constructUint()
             try:
-                pass
+#                pass
                 self.constructUint()
             except Exception as e:
                 print(e)
