@@ -220,8 +220,9 @@ class DecodeSS(db.DecodeBase):
                 roadDur = self.calRoadDur(preTaskID,taskID,actionID)
                 rob.arriveTime  = rob.leaveTime + roadDur
                 rob.encodeIndex = encodeInd
-                break           
-        rob.taskID = taskID
+                break
+        if rob.stopBool != True:            
+            rob.taskID = taskID
         self.backOneStep()
 '''
 decode no-backtrack

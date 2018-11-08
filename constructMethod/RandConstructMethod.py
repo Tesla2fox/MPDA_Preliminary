@@ -13,7 +13,6 @@ SuperiorCatalogue = os.path.dirname(AbsolutePath)
 BaseDir = os.path.dirname(SuperiorCatalogue)        
 #在“SuperiorCatalogue”的基础上在脱掉一层路径，得到我们想要的路径。
 if BaseDir in sys.path:
-#    print('have been added')
     pass
 else:
     sys.path.append(BaseDir)
@@ -30,7 +29,6 @@ class RandConstructMethod(ConstructMethodBase):
     @CalPeriod()
     def construct(self,sampleTimes = 10000):
         for i in range(sampleTimes):
-            print(i)            
             resSolution = self.generateRandSol()
             resSolution.evaluate()
             if resSolution.objective < self._solution.objective:
@@ -56,8 +54,3 @@ if __name__ == '__main__':
 #    print(pro)
 #    random.seed(2)
     print(con.construct())
-#    constructName = 's100_5_10_max100_2.5_2.5_2.5_1.2_thre0.1_MPDAins.dat'    
-#    con = ConstructMethodBase(BaseDir + '//data\\' + constructName)
-#    print(con)
-#    print('wtf')
-        

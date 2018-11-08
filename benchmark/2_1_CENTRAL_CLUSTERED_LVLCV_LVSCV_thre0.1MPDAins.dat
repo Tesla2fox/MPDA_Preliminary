@@ -1,0 +1,17 @@
+time 2018-10-12 17:10:02
+2_1_CENTRAL_CLUSTERED_LVLCV_LVSCV_thre0.1
+robNum  2
+taskNum  1
+comp_threhold  0.1
+rob2tskDis  46.61544808322666 46.61544808322666
+tskDis  0.0
+
+rob_x  50 50
+rob_y  50 50
+rob_vel  1 1
+rob_abi  0.24179940224540764 0.2931033852596116
+
+tsk_x  77
+tsk_y  88
+tsk_rat  0.513418213395067
+tsk_state  1

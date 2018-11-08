@@ -29,6 +29,7 @@ from Decode.robot import Robot,RobotState
 from Decode.task import Task
 import copy
 import collections
+import time 
 
 
 OrderTupleClass = collections.namedtuple('OrderTupleClass',['robID','taskID','vaild','syn_order'])
@@ -68,7 +69,8 @@ class MinConstructMethodBase(ConstructMethodBase):
         '''
         weightLst = self._generateWeightLst(weightNum)
 #        weightLst = [1]*11        
-        self._opt_solution = sol.Solution(self._instance)        
+        self._opt_solution = sol.Solution(self._instance)    
+        start = time.clock()
         for  weight in weightLst:
             self._solution = sol.Solution(self._instance)
             self.c_weight = weight                        
@@ -102,6 +104,8 @@ class MinConstructMethodBase(ConstructMethodBase):
                 if self._solution.objective < self._opt_solution.objective:
                     self._opt_solution = self._solution
 #            break
+        end = time.clock()
+        self._methodPeriod = end - start
         vaild  = False
         if self._opt_solution.objective != INF_NUM:
             vaild = True

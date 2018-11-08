@@ -26,6 +26,7 @@ import constructMethod.solution as sol
 import random
 from operator import itemgetter, attrgetter
 from functools import cmp_to_key
+import time 
 
 class StaticConstructMethod(ConstructMethodBase):
     def __init__(self, instance):
@@ -35,6 +36,7 @@ class StaticConstructMethod(ConstructMethodBase):
         '''
         zhu's method
         '''
+        start = time.clock()
         self._solution = sol.Solution(self._instance)
         self.__sortPreFirstArrTime()
         self.__sortPreFirstCmpltTime(cmpltReverse = cmpltReverse)        
@@ -59,6 +61,8 @@ class StaticConstructMethod(ConstructMethodBase):
             if resSolution.objective < self._solution.objective:
                 self._solution = resSolution
 #        print(len(solSet))
+        end = time.clock()
+        self._methodPeriod = end - start
         return self._solution
     def Gconstruct(self,weightNum = 11,cmpltReverse = False):
         '''

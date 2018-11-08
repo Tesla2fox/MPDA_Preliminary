@@ -112,6 +112,8 @@ class ConstructMethodBase(object):
             task.threhod = self._instance.threhold
             task.cmpltTime = sys.float_info.max
             self.taskLst.append(task)
+    '''
+    '''
     def _generateWeightLst(self,weightNum = 10):
         lst = []
         weightUnit = 1/(weightNum -1)
@@ -157,8 +159,7 @@ if __name__ == '__main__':
     dic[1] = 1090
     print(dic)
     print(EventTime['COMPLETETIME'])
-#    print(pro)
-    
+#    print(pro)    
 #    constructName = 's100_5_10_max100_2.5_2.5_2.5_1.2_thre0.1_MPDAins.dat'    
 #    con = ConstructMethodBase(BaseDir + '//data\\' + constructName)
 #    print(con)
