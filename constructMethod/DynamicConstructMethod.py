@@ -142,7 +142,7 @@ class MinConstructMethodRT(MinConstructMethodBase):
 
        
 if __name__ == '__main__':    
-    insName = '11_11_RANDOMCLUSTERED_CENTRAL_LVLCV_MSVFLV_thre0.1MPDAins.dat'
+    insName = '26_26_CLUSTERED_ECCENTRIC_LVLCV_UNITARY_thre0.1MPDAins.dat'
     pro = ins.Instance(BaseDir + '//benchmark\\' + insName)    
     con = MinConstructMethodRT(pro)
 #    print()

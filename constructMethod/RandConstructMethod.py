@@ -22,17 +22,31 @@ from constructMethod.constructMethodBase import ConstructMethodBase,CalPeriod
 import constructMethod.instance as ins
 import constructMethod.solution as sol
 import random
+import numpy as np
+import time 
 
 class RandConstructMethod(ConstructMethodBase):
     def __init__(self, instance):
         super(RandConstructMethod,self).__init__(instance)
     @CalPeriod()
-    def construct(self,sampleTimes = 10000):
+    def construct(self,sampleTimes = 10):
+        
+        vaildLst = []
+        start = time.clock()
         for i in range(sampleTimes):
             resSolution = self.generateRandSol()
+#            print(resSolution)
             resSolution.evaluate()
+            if resSolution.objective != sys.float_info.max:
+                vaildLst.append(resSolution.objective)                            
             if resSolution.objective < self._solution.objective:
                 self._solution = resSolution
+        end = time.clock()
+        self._methodPeriod = end - start
+        vaild_array = np.array(vaildLst)                
+        self._meanObjective = np.mean(vaild_array)
+        self._stdObjective = np.std(vaild_array)
+        self._vaildRate = len(vaildLst)/sampleTimes
         return self._solution
     def generateRandSol(self):
         resSolution = sol.Solution(self._instance)        
@@ -48,9 +62,12 @@ class RandConstructMethod(ConstructMethodBase):
     
 if __name__ == '__main__':
     
-    insName = '20_20_CLUSTERED_RANDOMCLUSTERED_SVLCV_LVSCV_thre0.1MPDAins.dat'
+    insName = '26_26_CLUSTERED_ECCENTRIC_LVLCV_UNITARY_thre0.1MPDAins.dat'
+#    
+    random.seed(1)
     pro = ins.Instance(BaseDir + '//benchmark\\' + insName)    
     con = RandConstructMethod(pro)
 #    print(pro)
 #    random.seed(2)
-    print(con.construct())
+    print(con.construct(2000))
+    print(con._methodPeriod)

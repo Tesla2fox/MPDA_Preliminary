@@ -7,6 +7,8 @@ Created on Wed Sep 19 14:59:38 2018
 
 
 
+
+
 import os,sys
 AbsolutePath = os.path.abspath(__file__)           
 #将相对路径转换成绝对路径
@@ -30,6 +32,20 @@ from Decode.decodeBase import CalType,BaseDir
 import random
 from Decode.robot import RobotState
 
+
+#from memory_profiler import profile
+
+def measure_time(f):
+    def timed(*args, **kw):
+        ts = time.time()
+        result = f(*args, **kw)
+        te = time.time()        
+        print ('%r (%r, %r) %2.2f sec' % \
+               (f.__name__, args, kw, te-ts))
+        return result
+    return timed
+
+
 '''
 decode with re-calculation
 '''
@@ -38,11 +54,11 @@ class DecodeRC(db.DecodeBase):
     def __init__(self,insFileName):
         super(DecodeRC,self).__init__(insFileName)
         degFileDir = BaseDir + '//debug//'
-        ins = self.insFileName.split('data\\')
+        ins = self.insFileName.split('benchmark\\')
         degFileName = degFileDir + 'deg_RC' + ins[1]
         self.deg = open(degFileName,'w')         
         degFileDir = BaseDir + '//debug//'
-        ins = self.insFileName.split('data\\')
+        ins = self.insFileName.split('benchmark\\')
         degFileName = degFileDir + 'deg2_RC' + ins[1]
         self.deg2 = open(degFileName,'w')
     def decode(self):
@@ -107,6 +123,7 @@ class DecodeRC(db.DecodeBase):
 '''
 decode with save state
 '''
+#@profile
 class DecodeSS(db.DecodeBase):
     def __init__(self,insFileName):
         super(DecodeSS,self).__init__(insFileName)
@@ -147,6 +164,7 @@ class DecodeSS(db.DecodeBase):
             makespan = self.calMakespan()
 #        self.saveEncode()
         return makespan
+#    @profile
     def saveEventInMemory(self):        
         '''
         event triggers the process of saving states  
@@ -154,15 +172,16 @@ class DecodeSS(db.DecodeBase):
         robInfo = []
         for rob in self.robotLst:
             variableInfo = rob.variableInfo()
-            robInfo.append(cp.deepcopy(variableInfo))
+            robInfo.append(variableInfo)
 #            robInfoTuple += variableInfo
-        self.robInfoLst.append(cp.deepcopy(robInfo))
+        self.robInfoLst.append(robInfo)
         taskInfo = []
         for task in self.taskLst:
             variableInfo = task.variableInfo()
             taskInfo.append(variableInfo)    
         self.taskInfoLst.append(taskInfo)
         self.decodeTimeLst.append(self.decodeTime)
+#        raise Exception()
     def backOneStep(self):
         '''
         return back one state
@@ -232,11 +251,11 @@ class DecodeNB(db.DecodeBase):
     def __init__(self,insFileName):
         super(DecodeNB,self).__init__(insFileName)
         degFileDir = BaseDir + '//debug//'
-        ins = self.insFileName.split('data\\')
+        ins = self.insFileName.split('benchmark\\')
         degFileName = degFileDir + 'deg_NB' + ins[1]
         self.deg = open(degFileName,'w')         
         degFileDir = BaseDir + '//debug//'
-        ins = self.insFileName.split('data\\')
+        ins = self.insFileName.split('benchmark\\')
         degFileName = degFileDir + 'deg2_NB' + ins[1]
         self.deg2 = open(degFileName,'w')
         self.leaveCmpltTask = self.updateRobLeaveCond
@@ -260,20 +279,24 @@ class DecodeNB(db.DecodeBase):
 #    def leaveCmpltTask(self,actionID):
 
 if __name__ == '__main__':
-    insName = 's100_5_10_max100_2.5_2.5_2.5_1.2_thre0.1_MPDAins.dat'
-    d_rc = DecodeRC(BaseDir + '//data\\' + insName)    
-    d_ss = DecodeSS(BaseDir + '//data\\' + insName)
-    d_nb = DecodeNB(BaseDir + '//data\\' + insName)    
+    insName = '47_47_RANDOMCLUSTERED_RANDOM_LVSCV_UNITARY_thre0.1MPDAins.dat'
+    d_rc = DecodeRC(BaseDir + '//benchmark\\' + insName)    
+    d_ss = DecodeSS(BaseDir + '//benchmark\\' + insName)
+    d_nb = DecodeNB(BaseDir + '//benchmark\\' + insName)    
     random.seed(1)
+    d_ss.generateRandEncode()
     d_nb.generateRandEncode()
-    d_nb.saveEncode()
+    start =  time.clock()
+#    d_nb.saveEncode()
     try:        
-        makespan = d_nb.decode()
+#        makespan = d_nb.decode()
+        makespan = d_ss.decode()
     except Exception as e:
         print(e)
         makespan = sys.float_info.max
     print('nb_makespan = ',makespan)
-        
+    end = time.clock()
+    print(end - start)        
 # =============================================================================
 #     random.seed(1)
 #     d_rc.generateRandEncode()

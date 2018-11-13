@@ -41,6 +41,8 @@ class Task():
 #        print(self.threhod)
 #        print(self.cState)
         if e_dur <0:
+            print('threhod',self.threhod)
+            print('cState',self.cState)
             raise Exception('Bug dur')
             print('bug dur')
         return e_dur
@@ -58,7 +60,30 @@ class Task():
         if(self.cState >sys.float_info.max ):
             valid = False
         self.changeRateTime = time
-        return valid    
+        return valid
+    '''
+    predict state and execute period for task 
+    '''
+    def preCalCurrentState(self,time):
+        changeDur = time - self.changeRateTime
+        incre = changeDur * self.cRate        
+        if incre > 709:
+            return False
+        cState = self.cState*math.exp(changeDur*self.cRate)                
+        valid =  True
+        if(cState > sys.float_info.max ):
+            valid = False
+        return cState,valid
+    
+    def preCalExecuteDur(self,cState,cRate):
+        e_dur = math.log(self.threhod/cState)/cRate
+        if e_dur <0:
+            print('threhod',self.threhod)
+            print('cState',self.cState)
+            raise Exception('Bug dur')
+            print('bug dur')
+        return e_dur
+        
     def isCmplt(self):
 #        print(self.cState)
 #        print(self.threhod)

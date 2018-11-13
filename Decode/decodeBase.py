@@ -51,6 +51,8 @@ from timeit import timeit
 import time
 import copy as cp 
 
+#from memory_profiler import profile
+
 class CalType(Enum):
     arriveCond = 1
     leaveCond = 2
@@ -144,7 +146,7 @@ class DecodeBase:
             
         self.decodeTime = 0
         self.validStateBool = True
-
+#    @profile
     def decodeProcessor(self):
         invalidFitness = False
         backBool = False

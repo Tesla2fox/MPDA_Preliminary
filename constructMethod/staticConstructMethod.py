@@ -24,7 +24,7 @@ from constructMethod.constructMethodBase import ConstructMethodBase,CalPeriod
 import constructMethod.instance as ins
 import constructMethod.solution as sol
 import random
-from operator import itemgetter, attrgetter
+#from operator import itemgetter, attrgetter
 from functools import cmp_to_key
 import time 
 

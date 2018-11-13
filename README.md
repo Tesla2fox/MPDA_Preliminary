@@ -32,6 +32,11 @@ MPDA_Preliminary
 23. The two makespans are not equal. And there are some bugs in the delete progress.
 24. The `sortPrePeiod` function can be optimized. Every time only update a part of `onRoad or onTask` dict.
 25. How to select a robot to complete an unable task? 1.maybe  can use the bias to measure
+26. what is the relationship between the MPDA model and the coverage task?
+	>- the coverage task is an instance of the MPDA model task
+	>- Or the MPDA model can not explain the coverage task
+27. benchmark 34 has some bug  in decode `23_18_ECCENTRIC_ECCENTRIC_UNITARY_UNITARY_thre0.1MPDAins.dat`
+
 
 ---
 
