@@ -13,7 +13,7 @@ import time
 import collections
 import sys, getopt
 
-ResData = collections.namedtuple('ResData',['fileName','minObjective',\
+ResData = collections.namedtuple('ResData',['fileName','minObjective','evaluateNum',\
                                             'period','meanObjective','stdObjective','vaildRate'])
 
 def file_name(file_dir):   
@@ -53,26 +53,29 @@ def main(argv):
          ,'wb')
     pk_file.close()         
     for file in files:
-        if fileIndex > endInd:
+        if fileIndex >= endInd:
             break
         fileIndex += 1
-        print('ind = ',fileIndex,' has been cmplted')        
         if fileIndex <= beginInd:
             continue
+        print('ind = ',fileIndex,' has been cmplted')        
         insName = root + '\\' + file
         pro = ins.Instance(insName)
-        print(pro)        
-        con = RandConstructMethod(pro)
+#        print(pro)        
+#        for i in range(10):
+        for i in range(20):            
+            con = RandConstructMethod(pro)
 #        start = time.clock()
-        _sol = con.construct(sampleTimes = 1000)
+            _sol = con.construct()
 #        end = time.clock()
 #        period = end -start
-        with open('D:\py_code\MPDA_Preliminary\\STATS_data\\_randDataTest' + str(beginInd) + '_' + str(endInd) +'.pk',\
-                  'ab') as pk_file:         
-            pickle.dump(ResData(fileName = file, minObjective = _sol.objective, period = con._methodPeriod,\
-                                meanObjective = con._meanObjective,stdObjective = con._stdObjective,vaildRate = con._vaildRate),pk_file)
-        pk_file.close()    
-    print('success')
+        
+            with open('D:\py_code\MPDA_Preliminary\\STATS_data\\_randDataTest' + str(beginInd) + '_' + str(endInd) +'.pk',\
+                      'ab') as pk_file:         
+                pickle.dump(ResData(fileName = file, minObjective = _sol.objective , evaluateNum = con._evaluateNum,period = con._methodPeriod,\
+                                    meanObjective = 0,stdObjective = 0,vaildRate = 0),pk_file)
+                pk_file.close()    
+        print('success')
 #    pk_file = open("test.dat",'rb')
 
     pk_file = open("D:\py_code\MPDA_Preliminary\\STATS_data\\_randDataTest" + str(beginInd) + "_" + str(endInd) +".pk",\
@@ -87,22 +90,6 @@ def main(argv):
     pk_file.close()
     
         
-#        randDict[file] = ResData(objective = _sol.objective, period = period)
-#    print(randDict)
-#    with open('D:\py_code\MPDA_Preliminary\\benchmark\\_randDataTest80-100.pk','wb') as f:
-#        pickle.dump(randDict,f, pickle.HIGHEST_PROTOCOL)
-#    wtfData = dict()
-#    with open('D:\py_code\MPDA_Preliminary\\benchmark\\_randDataTest80-100.pk','rb') as f:
-#        wtfData = pickle.load(f)
-#    print('wtf',wtfData)
-
-
-
-#   print ('输入的文件为：', inputfile)
-#   print ('输出的文件为：', outputfile)
-
-
-
 if __name__ == '__main__':
     main(sys.argv[1:])
 

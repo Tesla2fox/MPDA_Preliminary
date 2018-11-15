@@ -60,9 +60,12 @@ class StaticConstructMethod(ConstructMethodBase):
                 solSet.append(resSolution)
             if resSolution.objective < self._solution.objective:
                 self._solution = resSolution
+                minWeight = weight 
+
 #        print(len(solSet))
         end = time.clock()
         self._methodPeriod = end - start
+        print('minWeight', minWeight)
         return self._solution
     def Gconstruct(self,weightNum = 11,cmpltReverse = False):
         '''
@@ -119,7 +122,8 @@ class StaticConstructMethod(ConstructMethodBase):
 #        print(preCmpltTupleLst)
         self.cmpltDic =  self.sort(preCmpltTupleLst,keyFunc = cmp_to_key(self.__cmpCmpltTime)\
                                    ,reverse = cmpltReverse)
-#        print(preCompTupleLst)
+#        print(preCmpltTupleLst)
+#        raise Exception('dasd')
 #        print(self.cmpltDic)
 #        print(preCompTupleLst)
     def __sortPreFirstExecuteTime(self,cmpltReverse = False):
@@ -153,13 +157,13 @@ class StaticConstructMethod(ConstructMethodBase):
                 return 1
             else: 
                 return -1
+            
     def __orderLst2Sol(self,orderLst = []):
         encodeIndLst = [0]*self._instance.robNum
         resSol = sol.Solution(self._instance)        
         for orderUnit in orderLst:
             robID = orderUnit[0][0]
             taskID = orderUnit[0][1]
-#            resSol[]    
             resSol[(robID,encodeIndLst[robID])] = taskID
             encodeIndLst[robID] += 1
 #        print(resSol)
@@ -168,11 +172,10 @@ class StaticConstructMethod(ConstructMethodBase):
         return 'StaticConstructMethod\n' + str(self._solution)
     
 if __name__ == '__main__':    
-    insName = '20_20_CLUSTERED_RANDOMCLUSTERED_SVLCV_LVSCV_thre0.1MPDAins.dat'
+    insName = '26_26_CLUSTERED_ECCENTRIC_LVLCV_UNITARY_thre0.1MPDAins.dat'
     pro = ins.Instance(BaseDir + '//benchmark\\' + insName)    
     con = StaticConstructMethod(pro)
-#    print(pro)
-#    random.seed(2)
+    
     print(con.construct(cmpltReverse = True))
     print(con.construct(cmpltReverse = False))
     print(con.Gconstruct(cmpltReverse = True))

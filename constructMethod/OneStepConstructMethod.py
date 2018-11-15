@@ -28,6 +28,9 @@ import random
 import collections
 from functools import cmp_to_key
 import time 
+#import np
+#import numpy as np
+#np.set_printoptions(threshold=np.inf)
 
 INF_NUM = sys.float_info.max
 INF_INT_NUM = sys.maxsize
@@ -48,18 +51,31 @@ class OneStepConstructMethod(ConstructMethodBase):
 
         weightLst = self._generateWeightLst(weightNum)
         start = time.clock()
+        
         for weight in weightLst:
             self._solution = sol.Solution(self._instance)
-            self.c_weight = weight                        
+            self.c_weight = weight
+#            self._robEncodeIndexLst = [1]*self._instance.robNum
+            self._robTaskIDLst = [INF_INT_NUM] * self._instance.robNum
+            self._robUnAllocateTaskLst = []
+            for taskID in range(self._instance.robNum):
+                self._robUnAllocateTaskLst.append([x for x in range(self._instance.taskNum)])
             self.constructFirstStep()
-            print(self._solution)
-            break
+            self.estConstruct()
+#            print(self._solution)
+            self._solution.evaluate()
+            if self._solution.objective <  self._opt_solution.objective:
+                self._opt_solution = self._solution
+                minWeight = weight 
+#            print(self._robUnAllocateTaskLst)
+#            print(self._solution)            
+#            break
         end = time.clock()
         self._methodPeriod = end - start
         vaild  = False
         if self._opt_solution.objective != INF_NUM:
             vaild = True
-
+            print(minWeight)
         return vaild,self._opt_solution
     def constructFirstStep(self):
         for robID in range(self._instance.robNum):
@@ -92,20 +108,66 @@ class OneStepConstructMethod(ConstructMethodBase):
             self.max_cState = max(cStateLst)
             onRoadOrderDic = self.sort(preFirstArrTimeLst, keyFunc = lambda x: x[1])
             onTaskOrderDic = self.sort(preFirstCmpltTimeLst, keyFunc = cmp_to_key(self._cmpOnTasktime))
-            print(preFirstCmpltTimeLst)
-            print(onTaskOrderDic)
+#            print(preFirstCmpltTimeLst)
+#            print(onTaskOrderDic)
             orderLst = []
             for key,unit in preFirstCmpltTimeLst:
 #                key = unit.taskID  
                 roadOrder = onRoadOrderDic[key]                    
-                executeOrder = onTaskOrderDic[key]                    
-                syntheticalOrder = self.c_weight * roadOrder + (1-self.c_weight) * executeOrder                
+                cmpltOrder = onTaskOrderDic[key]                    
+                syntheticalOrder = self.c_weight * roadOrder + (1-self.c_weight) * cmpltOrder                
 #                orderLst.append()
                 orderLst.append(OrderTupleClass(key,unit.vaild,syntheticalOrder))
-            minUnit = min(orderLst, key = cmp_to_key(self._cmpSynOrder))
-            self._solution[(robID,0)] = minUnit.taskID                        
+            minUnit = min(orderLst, key = cmp_to_key(self._cmpSynOrder))            
+            self._solution[(robID,0)] = minUnit.taskID
+            self._robTaskIDLst[robID] = minUnit.taskID
+            self._robUnAllocateTaskLst[robID].remove(minUnit.taskID)
+#            .add(minUnit.taskID)
 #            break
-        pass    
+        pass
+    def estConstruct(self):
+        for robID in range(self._instance.robNum):
+            for robInd in range(1,self._instance.taskNum):
+#                print(self._solution)
+                self.estConstructUnit(robID,robInd)
+#                pass
+        pass
+    def estConstructUnit(self,robID,robInd):
+        unAllocateTaskLst = self._robUnAllocateTaskLst[robID]
+        robTaskID  =  self._robTaskIDLst[robID]
+        periodLst = []
+        rateLst = []
+        for taskID in unAllocateTaskLst:
+            onRoadPeriod = self._instance.calTask2TaskPeriod(robID,taskID,robTaskID)
+            rate  =  self.taskLst[taskID].initRate
+            periodLst.append((taskID,onRoadPeriod))
+            rateLst.append((taskID,rate))
+        onRoadPeriodDic  = self.sort(periodLst)
+        '''
+        this part needs some changes
+        '''
+        rateDic = self.sort(rateLst,reverse = False)
+#        print(onRoadPeriodDic)
+#        print(rateDic)
+        
+        orderLst  = []
+        for taskID in onRoadPeriodDic:
+            onRoadOrder = onRoadPeriodDic[taskID]
+            rateOrder = rateDic[taskID]
+            syntheticalOrder = self.c_weight * onRoadOrder + (1 - self.c_weight) * rateOrder
+            orderLst.append((taskID,syntheticalOrder))
+            
+        minUnit =  min(orderLst, key = lambda x : x[1])
+#        orderLst = sorted(orderLst,key = lambda x : x[1])
+#        print(orderLst)
+        
+        self._solution[(robID,robInd)] = minUnit[0]
+        self._robTaskIDLst[robID] = minUnit[0]
+        self._robUnAllocateTaskLst[robID].remove(minUnit[0])        
+#        raise Exception('das')
+        pass
+        
+
     def _cmpSynOrder(self,a,b):
         if a.vaild == b.vaild and a.syn_order == b.syn_order:
             return 0
@@ -127,6 +189,7 @@ class OneStepConstructMethod(ConstructMethodBase):
                 a_est_cmpltTime = a[1].state / self.max_cState * a[1].rate /self.max_cRate
                 b_est_cmpltTime = b[1].state / self.max_cState * b[1].rate /self.max_cRate               
                 return b_est_cmpltTime - a_est_cmpltTime 
+                return  b[1].state - a[1].state
             else:
                 return b[1].cmpltTime - a[1].cmpltTime
             pass
@@ -135,8 +198,6 @@ class OneStepConstructMethod(ConstructMethodBase):
                 return 1
             else:
                 return 1
-        
-#        pass
     def _sortPreFirstArrTime(self):
         self.arrDic = dict()
         preFirstArrTimeLst = []
@@ -165,8 +226,11 @@ class OneStepConstructMethod(ConstructMethodBase):
         
 
 if __name__ == '__main__':
-    insName = '20_20_CLUSTERED_RANDOMCLUSTERED_SVLCV_LVSCV_thre0.1MPDAins.dat'
+    insName = '26_26_CLUSTERED_ECCENTRIC_LVLCV_UNITARY_thre0.1MPDAins.dat'
     pro = ins.Instance(BaseDir + '//benchmark\\' + insName)    
     con = OneStepConstructMethod(pro)
-    print(con.construct())        
+    print(con.construct())
+    print(con._methodPeriod)        
+#    a = list()
+#    a.remove
     
