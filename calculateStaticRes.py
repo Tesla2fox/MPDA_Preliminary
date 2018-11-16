@@ -13,9 +13,24 @@ import time
 import collections
 import sys, getopt
 import numpy as np
+from enum import Enum
 
-ResData = collections.namedtuple('ResData',['fileName','minObjective','evaluateNum',\
-                                            'period','meanObjective','stdObjective','vaildRate'])
+
+class MethodType(Enum):
+    SR = 0
+#    SR2 = 1
+#    SR3 = 2
+    OSR = 1
+#    OsR = 4
+    
+
+calMethodType = MethodType.OSR
+
+
+OSRData = collections.namedtuple('OSRData',['fileName','minObjective','period',\
+                                            'minObjectiveR','periodR'])
+ResData = collections.namedtuple('ResData',['fileName','minObjective0','period0'\
+                                            ,'minObjective1','period1','minObjective2','period2'])
 RandDataPK = collections.namedtuple('RandDataPK',['mean_ob','std_ob','min_ob','mean_peri','std_peri'\
                                                   ,'mean_eNum','std_eNum'])
 
@@ -52,10 +67,15 @@ def main(argv):
 
     root,dirs,files = file_name('D:\py_code\MPDA_Preliminary\\benchmark')
     fileIndex = 0
-#    randDict = dict()    
-    pk_file = open('D:\py_code\MPDA_Preliminary\\STATS_data\\_randDataTest' + str(beginInd) + '_' + str(endInd) +'.pk'\
-         ,'wb')
-    pk_file.close()         
+#    randDict = dict()
+    if calMethodType == MethodType.OSR:
+        pk_file = open('D:\py_code\MPDA_Preliminary\\STATS_data\\_oneStatic\\oneStaticData' + str(beginInd) + '_' + str(endInd) +'.pk'\
+                       ,'wb')
+        pk_file.close()         
+    if calMethodType == MethodType.SR:    
+        pk_file = open('D:\py_code\MPDA_Preliminary\\STATS_data\\_static\\staticData' + str(beginInd) + '_' + str(endInd) +'.pk'\
+                       ,'wb')
+        pk_file.close()         
     for file in files:
         if fileIndex >= endInd:
             break
@@ -67,23 +87,65 @@ def main(argv):
         pro = ins.Instance(insName)
 #        print(pro)        
 #        for i in range(10):
-        for i in range(20):            
-            con = RandConstructMethod(pro)
-#        start = time.clock()
-            _sol = con.construct()
-#        end = time.clock()
-#        period = end -start
         
-            with open('D:\py_code\MPDA_Preliminary\\STATS_data\\_randDataTest' + str(beginInd) + '_' + str(endInd) +'.pk',\
-                      'ab') as pk_file:         
-                pickle.dump(ResData(fileName = file, minObjective = _sol.objective , evaluateNum = con._evaluateNum,period = con._methodPeriod,\
-                                    meanObjective = 0,stdObjective = 0,vaildRate = 0),pk_file)
+        if calMethodType == MethodType.OSR:
+            con = OneStepConstructMethod(pro)
+            con = OneStepConstructMethod(pro)
+            con.cmpOnTaskMethod(0)
+            vaild,sol = con.construct()
+            minObjective0 = sol.objective
+            period0 = con._methodPeriod
+
+#    print(con._methodPeriod)
+            con1 = OneStepConstructMethod(pro)
+            con1.cmpOnTaskMethod(1)
+            vaild,sol = con1.construct()
+            minObjective1 = sol.objective
+            period1 = con1._methodPeriod
+
+            con2 = OneStepConstructMethod(pro)
+            con2.cmpOnTaskMethod(2)
+            vaild,sol = con2.construct()
+            minObjective2 = sol.objective
+            period2 = con2._methodPeriod
+
+            with open('D:\py_code\MPDA_Preliminary\\STATS_data\\_oneStatic\\oneStaticData' + str(beginInd) + '_' + str(endInd) +'.pk',\
+                          'ab') as pk_file:         
+                pickle.dump(ResData(fileName = file, minObjective0 = minObjective0, period0 = period0,\
+                                    minObjective1 = minObjective1, period1 = period1,minObjective2 = minObjective2, period2 = period2),pk_file)
+                pk_file.close()    
+
+            
+        
+        if calMethodType == MethodType.SR:        
+            con = StaticConstructMethod(pro)
+            sol = con.construct(cmpltReverse = True)
+            minObjective0 = sol.objective
+            period0 = con._methodPeriod
+            
+            sol = con.construct(cmpltReverse = False)
+            minObjective1 = sol.objective
+            period1 = con._methodPeriod
+    
+    
+            sol = con.Gconstruct(cmpltReverse = True)
+            minObjective2 = sol.objective
+            period2 = con._methodPeriod
+            
+            with open('D:\py_code\MPDA_Preliminary\\STATS_data\\_static\\staticData' + str(beginInd) + '_' + str(endInd) +'.pk',\
+                          'ab') as pk_file:         
+                pickle.dump(ResData(fileName = file, minObjective0 = minObjective0, period0 = period0,\
+                                    minObjective1 = minObjective1, period1 = period1,minObjective2 = minObjective2, period2 = period2),pk_file)
                 pk_file.close()    
         print('success')
 #    pk_file = open("test.dat",'rb')
 
-    pk_file = open("D:\py_code\MPDA_Preliminary\\STATS_data\\_randDataTest" + str(beginInd) + "_" + str(endInd) +".pk",\
-                'rb')
+    if calMethodType == MethodType.SR:        
+        pk_file = open("D:\py_code\MPDA_Preliminary\\STATS_data\\_static\\staticData" + str(beginInd) + "_" + str(endInd) +".pk",\
+                       'rb')
+    if calMethodType == MethodType.OSR:
+        pk_file = open("D:\py_code\MPDA_Preliminary\\STATS_data\\_oneStatic\\oneStaticData" + str(beginInd) + "_" + str(endInd) +".pk",\
+                       'rb')        
     while True:
         try:
             wtf = pickle.load(pk_file)
@@ -116,7 +178,7 @@ def processData():
     pickDic = dict()
     for key in dic:
         ob_lst = []
-        peri_lst = []
+        peri_lst = [] 
         eNum_lst = []
         for unit in dic[key]:
             ob_lst.append(unit.minObjective)
@@ -155,6 +217,6 @@ def processData():
 
         
 if __name__ == '__main__':
-#    main(sys.argv[1:])
-    processData()
+    main(sys.argv[1:])
+#    processData()
 

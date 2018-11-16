@@ -46,6 +46,18 @@ OrderTupleClass = collections.namedtuple('OrderTupleClass',['taskID','vaild','sy
 class OneStepConstructMethod(ConstructMethodBase):
     def __init__(self, instance):
         super(OneStepConstructMethod,self).__init__(instance)
+#        self._cmpOnTasktime = self._cmpOnTasktimeRS       
+    def cmpOnTaskMethod(self,typeInd):
+        if typeInd == 0:
+            self._cmpOnTasktime = self._cmpOnTasktimeRS
+            self._cmpReverse = False
+        if typeInd == 1:
+            self._cmpOnTasktime = self._cmpOnTasktimeOR
+            self._cmpReverse = False
+        if typeInd == 2:
+            self._cmpOnTasktime = self._cmpOnTasktimeRRS
+            self._cmpReverse = True
+            print('it is the reverse version')            
     def construct(self,weightNum = 11,cmpltReverse = False):
         self._opt_solution = sol.Solution(self._instance)
 
@@ -146,7 +158,7 @@ class OneStepConstructMethod(ConstructMethodBase):
         '''
         this part needs some changes
         '''
-        rateDic = self.sort(rateLst,reverse = False)
+        rateDic = self.sort(rateLst,reverse = self._cmpReverse)
 #        print(onRoadPeriodDic)
 #        print(rateDic)
         
@@ -181,7 +193,11 @@ class OneStepConstructMethod(ConstructMethodBase):
                 return 1
             else:
                 return -1
-    def _cmpOnTasktime(self,a,b):
+            
+    '''
+    compare rate and state 
+    '''
+    def _cmpOnTasktimeRS(self,a,b):
         if a[1] == b[1]:
             return 0
         if a[1].vaild == b[1].vaild:
@@ -189,6 +205,45 @@ class OneStepConstructMethod(ConstructMethodBase):
                 a_est_cmpltTime = a[1].state / self.max_cState * a[1].rate /self.max_cRate
                 b_est_cmpltTime = b[1].state / self.max_cState * b[1].rate /self.max_cRate               
                 return b_est_cmpltTime - a_est_cmpltTime 
+#                return  b[1].state - a[1].state
+            else:
+                return b[1].cmpltTime - a[1].cmpltTime
+            pass
+        else:
+            if a[1].vaild == False:
+                return 1
+            else:
+                return 1
+    '''
+    compare the rate and state  but this method is reverse.
+    '''
+    def _cmpOnTasktimeRRS(self,a,b):
+        if a[1] == b[1]:
+            return 0
+        if a[1].vaild == b[1].vaild:
+            if a[1].cmpltTime  == b[1].cmpltTime:
+                a_est_cmpltTime = a[1].state / self.max_cState * a[1].rate /self.max_cRate
+                b_est_cmpltTime = b[1].state / self.max_cState * b[1].rate /self.max_cRate               
+                return a_est_cmpltTime - b_est_cmpltTime 
+            else:
+                return a[1].cmpltTime - b[1].cmpltTime
+            pass
+        else:
+            if a[1].vaild == False:
+                return 1
+            else:
+                return 1
+    '''
+    on based on the rate to compare  
+    '''
+    def _cmpOnTasktimeOR(self,a,b):
+        if a[1] == b[1]:
+            return 0
+        if a[1].vaild == b[1].vaild:
+            if a[1].cmpltTime  == b[1].cmpltTime:
+#                a_est_cmpltTime = a[1].state / self.max_cState * a[1].rate /self.max_cRate
+#                b_est_cmpltTime = b[1].state / self.max_cState * b[1].rate /self.max_cRate               
+#                return b_est_cmpltTime - a_est_cmpltTime 
                 return  b[1].state - a[1].state
             else:
                 return b[1].cmpltTime - a[1].cmpltTime
@@ -198,6 +253,7 @@ class OneStepConstructMethod(ConstructMethodBase):
                 return 1
             else:
                 return 1
+    
     def _sortPreFirstArrTime(self):
         self.arrDic = dict()
         preFirstArrTimeLst = []
@@ -209,8 +265,8 @@ class OneStepConstructMethod(ConstructMethodBase):
         self.arrDic = self.sort(preFirstArrTimeLst,reverse = False)
         
         
-    def __sortPreFirstCmpltTime(self,cmpltReverse = False):
         self.cmpltDic = dict()
+    def __sortPreFirstCmpltTime(self,cmpltReverse = False):
         preCmpltTupleLst = []
         for i in range(self._instance.robNum):
             for j in range(self._instance.taskNum):
@@ -226,11 +282,23 @@ class OneStepConstructMethod(ConstructMethodBase):
         
 
 if __name__ == '__main__':
-    insName = '26_26_CLUSTERED_ECCENTRIC_LVLCV_UNITARY_thre0.1MPDAins.dat'
+    insName = '35_35_CLUSTERED_ECCENTRIC_QUADRANT_UNITARY_thre0.1MPDAins.dat'
     pro = ins.Instance(BaseDir + '//benchmark\\' + insName)    
     con = OneStepConstructMethod(pro)
+    con.cmpOnTaskMethod(0)
     print(con.construct())
-    print(con._methodPeriod)        
+#    print(con._methodPeriod)
+    con1 = OneStepConstructMethod(pro)
+    con1.cmpOnTaskMethod(1)
+    print(con1.construct())
+#    print(con1._methodPeriod)
+
+
+    con2 = OneStepConstructMethod(pro)
+    con2.cmpOnTaskMethod(2)
+    print(con2.construct())
+#    print(con2._methodPeriod)
+            
 #    a = list()
 #    a.remove
     

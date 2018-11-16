@@ -9,6 +9,7 @@ from constructMethod.PremConstructMethod import PremConstructMethod
 from constructMethod.StaticConstructMethod import StaticConstructMethod
 #from constructMethod.MinConstructMethod import MinConstructMethod
 from constructMethod.DynamicConstructMethod import MinConstructMethodRT
+from constructMethod.OneStepConstructMethod import OneStepConstructMethod
 
 
 import constructMethod.RandConstructMethod as rCon

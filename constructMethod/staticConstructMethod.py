@@ -65,12 +65,14 @@ class StaticConstructMethod(ConstructMethodBase):
 #        print(len(solSet))
         end = time.clock()
         self._methodPeriod = end - start
-        print('minWeight', minWeight)
+#        print('minWeight', minWeight)
         return self._solution
     def Gconstruct(self,weightNum = 11,cmpltReverse = False):
         '''
         Gao's method
         '''
+        start = time.clock()
+
         self._solution = sol.Solution(self._instance)
         self.__sortPreFirstArrTime()
         self.__sortPreFirstCmpltTime(cmpltReverse = cmpltReverse)        
@@ -95,6 +97,8 @@ class StaticConstructMethod(ConstructMethodBase):
             if resSolution.objective < self._solution.objective:
                 self._solution = resSolution
 #        print(len(solSet))
+        end = time.clock()
+        self._methodPeriod = end - start
         return self._solution    
     def __sortPreFirstArrTime(self):
         self.arrDic = dict()
@@ -172,10 +176,11 @@ class StaticConstructMethod(ConstructMethodBase):
         return 'StaticConstructMethod\n' + str(self._solution)
     
 if __name__ == '__main__':    
-    insName = '26_26_CLUSTERED_ECCENTRIC_LVLCV_UNITARY_thre0.1MPDAins.dat'
+    insName = '41_62_CLUSTERED_RANDOM_SVSCV_SVLCV_thre0.1MPDAins.dat'
     pro = ins.Instance(BaseDir + '//benchmark\\' + insName)    
     con = StaticConstructMethod(pro)
     
     print(con.construct(cmpltReverse = True))
     print(con.construct(cmpltReverse = False))
     print(con.Gconstruct(cmpltReverse = True))
+    print(con.Gconstruct(cmpltReverse = False))
