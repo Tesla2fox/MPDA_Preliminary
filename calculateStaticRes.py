@@ -21,15 +21,17 @@ class MethodType(Enum):
 #    SR2 = 1
 #    SR3 = 2
     OSR = 1
+    
+    Rand = 2
 #    OsR = 4
     
 
-calMethodType = MethodType.OSR
+calMethodType = MethodType.SR
 
 
 OSRData = collections.namedtuple('OSRData',['fileName','minObjective','period',\
                                             'minObjectiveR','periodR'])
-ResData = collections.namedtuple('ResData',['fileName','minObjective0','period0'\
+SRResData = collections.namedtuple('SRResData',['fileName','minObjective0','period0'\
                                             ,'minObjective1','period1','minObjective2','period2'])
 RandDataPK = collections.namedtuple('RandDataPK',['mean_ob','std_ob','min_ob','mean_peri','std_peri'\
                                                   ,'mean_eNum','std_eNum'])
@@ -111,7 +113,7 @@ def main(argv):
 
             with open('D:\py_code\MPDA_Preliminary\\STATS_data\\_oneStatic\\oneStaticData' + str(beginInd) + '_' + str(endInd) +'.pk',\
                           'ab') as pk_file:         
-                pickle.dump(ResData(fileName = file, minObjective0 = minObjective0, period0 = period0,\
+                pickle.dump(SRResData(fileName = file, minObjective0 = minObjective0, period0 = period0,\
                                     minObjective1 = minObjective1, period1 = period1,minObjective2 = minObjective2, period2 = period2),pk_file)
                 pk_file.close()    
 
@@ -134,7 +136,7 @@ def main(argv):
             
             with open('D:\py_code\MPDA_Preliminary\\STATS_data\\_static\\staticData' + str(beginInd) + '_' + str(endInd) +'.pk',\
                           'ab') as pk_file:         
-                pickle.dump(ResData(fileName = file, minObjective0 = minObjective0, period0 = period0,\
+                pickle.dump(SRResData(fileName = file, minObjective0 = minObjective0, period0 = period0,\
                                     minObjective1 = minObjective1, period1 = period1,minObjective2 = minObjective2, period2 = period2),pk_file)
                 pk_file.close()    
         print('success')
@@ -156,67 +158,98 @@ def main(argv):
     pk_file.close()
     
 def processData():
-    root,dirs,files = file_name('D:\py_code\MPDA_Preliminary\\STATS_data\\_rand')
-    dic = dict()
-    for file in files:
-        print(file)
-        pk_file = open(root + '\\' + file,'rb')
-        while True:
-            try:
-                data = pickle.load(pk_file)
-                
-            except Exception as e:
-                print(e)
-                break
-            if data.fileName in dic:                
-                dic[data.fileName].append(data)
-            else:
-                dic[data.fileName] = []
-#            print(wtf)
-        pk_file.close()
+    if calMethodType == MethodType.Rand:        
+        root,dirs,files = file_name('D:\py_code\MPDA_Preliminary\\STATS_data\\_rand')
+    if calMethodType == MethodType.SR:        
+        root,dirs,files = file_name('D:\py_code\MPDA_Preliminary\\STATS_data\\_static')
+    if calMethodType == MethodType.OSR:        
+        root,dirs,files = file_name('D:\py_code\MPDA_Preliminary\\STATS_data\\_onestatic')        
+    
+    if calMethodType == MethodType.SR or calMethodType == MethodType.OSR:
+        pickDic = dict()
+        for file in files:
+            pk_file = open(root + '\\' + file,'rb')
+            while True:
+                try:
+                    data = pickle.load(pk_file)                    
+                except Exception as e:
+                    print(e)
+                    break                
+                pickDic[data.fileName] = data
+    #            print(wtf)
+            pk_file.close()
+    if calMethodType == MethodType.SR:
+        pk_file = open('D:\py_code\MPDA_Preliminary\\STATS_data\\_AllStaticData' +'.pk','wb')
+        with open('D:\py_code\MPDA_Preliminary\\STATS_data\\_AllStaticData' +'.pk',\
+                  'ab') as pk_file:         
+                    pickle.dump(pickDic,pk_file)
+                    pk_file.close()
+        pk_file = open('D:\py_code\MPDA_Preliminary\\STATS_data\\_AllStaticData' +'.pk','rb')
+        p  =  pickle.load(pk_file)
+        print(p)
+    if calMethodType == MethodType.OSR:
+        pk_file = open('D:\py_code\MPDA_Preliminary\\STATS_data\\_AllOneStaticData' +'.pk','wb')
+        with open('D:\py_code\MPDA_Preliminary\\STATS_data\\_AllOneStaticData' +'.pk',\
+                  'ab') as pk_file:         
+                    pickle.dump(pickDic,pk_file)
+                    pk_file.close()
+        pk_file = open('D:\py_code\MPDA_Preliminary\\STATS_data\\_AllOneStaticData' +'.pk','rb')
+        p  =  pickle.load(pk_file)
+        print(p)            
+    if calMethodType == MethodType.Rand:
+        dic = dict()
+        for file in files:
+            print(file)
+            pk_file = open(root + '\\' + file,'rb')
+            while True:
+                try:
+                    data = pickle.load(pk_file)
+                    
+                except Exception as e:
+                    print(e)
+                    break
+                if data.fileName in dic:                
+                    dic[data.fileName].append(data)
+                else:
+                    dic[data.fileName] = []
+    #            print(wtf)
+            pk_file.close()
         
-    pickDic = dict()
-    for key in dic:
-        ob_lst = []
-        peri_lst = [] 
-        eNum_lst = []
-        for unit in dic[key]:
-            ob_lst.append(unit.minObjective)
-            peri_lst.append(unit.period)
-            eNum_lst.append(unit.evaluateNum)
-        ob_arry = np.array(ob_lst)
-        mean_ob = np.mean(ob_arry)
-        std_ob = np.std(ob_arry)
-        min_ob = min(ob_lst)
-#        min_ob = np.min(ob_arry) 
-        
-        peri_arry = np.array(peri_lst)
-        mean_peri = np.mean(peri_arry)
-        std_peri = np.std(peri_arry)
-
-        eNum_arry = np.array(eNum_lst)
-        mean_eNum = np.mean(eNum_arry)
-        std_eNum = np.std(eNum_arry)
-        
-        pickDic[key] = RandDataPK(mean_ob = mean_ob,std_ob = std_ob,min_ob = min_ob,\
-                                  mean_peri = mean_peri, std_peri = std_peri,
-                                  mean_eNum = mean_eNum, std_eNum = std_eNum)
-        
-#    print('pickDic',pickDic)        
-
-    pk_file = open('D:\py_code\MPDA_Preliminary\\STATS_data\\_AllRandData' +'.pk','wb')
-    with open('D:\py_code\MPDA_Preliminary\\STATS_data\\_AllRandData' +'.pk',\
-              'ab') as pk_file:         
-                pickle.dump(pickDic,pk_file)
-                pk_file.close()
-    pk_file = open('D:\py_code\MPDA_Preliminary\\STATS_data\\_AllRandData' +'.pk','rb')
-    p  =  pickle.load(pk_file)
-    print('p',p)
-
-#    print(dic)
-
-        
+        pickDic = dict()
+        for key in dic:
+            ob_lst = []
+            peri_lst = [] 
+            eNum_lst = []
+            for unit in dic[key]:
+                ob_lst.append(unit.minObjective)
+                peri_lst.append(unit.period)
+                eNum_lst.append(unit.evaluateNum)
+            ob_arry = np.array(ob_lst)
+            mean_ob = np.mean(ob_arry)
+            std_ob = np.std(ob_arry)
+            min_ob = min(ob_lst)
+    #        min_ob = np.min(ob_arry) 
+            
+            peri_arry = np.array(peri_lst)
+            mean_peri = np.mean(peri_arry)
+            std_peri = np.std(peri_arry)
+    
+            eNum_arry = np.array(eNum_lst)
+            mean_eNum = np.mean(eNum_arry)
+            std_eNum = np.std(eNum_arry)
+            
+            pickDic[key] = RandDataPK(mean_ob = mean_ob,std_ob = std_ob,min_ob = min_ob,\
+                                      mean_peri = mean_peri, std_peri = std_peri,
+                                      mean_eNum = mean_eNum, std_eNum = std_eNum)            
+    #    print('pickDic',pickDic)            
+        pk_file = open('D:\py_code\MPDA_Preliminary\\STATS_data\\_AllRandData' +'.pk','wb')
+        with open('D:\py_code\MPDA_Preliminary\\STATS_data\\_AllRandData' +'.pk',\
+                  'ab') as pk_file:         
+                    pickle.dump(pickDic,pk_file)
+                    pk_file.close()
+        pk_file = open('D:\py_code\MPDA_Preliminary\\STATS_data\\_AllRandData' +'.pk','rb')
+        p  =  pickle.load(pk_file)
 if __name__ == '__main__':
-    main(sys.argv[1:])
-#    processData()
-
+#    main(sys.argv[1:])
+    processData()
+#

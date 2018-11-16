@@ -20,18 +20,21 @@ STATS_index = collections.namedtuple('STATS_index',['objective','period'])
 class MethodType(Enum):
     SR1 = 1
     SR2 = 2
-    MR1 = 3
-    MR2 = 4
-
+    SR3 = 3
+    MR1 = 4
+    MR2 = 5
+    MR3 = 6
 methodExdic = dict()
 methodExdic[0] = MethodType.SR1
 methodExdic[1] = MethodType.SR2
-methodExdic[2] = MethodType.MR1
-methodExdic[3] = MethodType.MR2
+methodExdic[2] = MethodType.SR3
+methodExdic[3] = MethodType.MR1
+methodExdic[4] = MethodType.MR2
+methodExdic[5] = MethodType.MR3
 
 
 
-TableTuple = collections.namedtuple('TableTuple',['SR1','SR2','MR1','MR2','Rand'])
+TableTuple = collections.namedtuple('TableTuple',['SR0','SR1','SR2','OSR0','OSR1','OSR2','Rand'])
 # =============================================================================
 # the first means  the objective better than the random method
 # the second means the calculation period better than the random alg
@@ -39,7 +42,7 @@ TableTuple = collections.namedtuple('TableTuple',['SR1','SR2','MR1','MR2','Rand'
 # the 4th means the best calculation period in all methods
 # =============================================================================
 g_statisticRes =  []
-for i in range(5):
+for i in range(7):
     g_statisticRes.append([0,0,0,0])
 
 
@@ -159,11 +162,80 @@ def statistic2Latex(data,insNum):
 
 if __name__ == '__main__':
     root,dirs,files = file_name('D:\py_code\MPDA_Preliminary\\benchmark')
-    dataPro = open('D:\py_code\MPDA_Preliminary\\benchmark\\comp_randPro.dat','w')         
-    with open('D:\py_code\MPDA_Preliminary\\benchmark\\_randData.pk','rb') as f:
-        randConData = pickle.load(f)
+    dataPro = open('D:\py_code\MPDA_Preliminary\\latexData\\comp_randPro.dat','w')         
     fileIndex = 0
     randDict = dict()
+    benchmarkLst = []
+    for file in files:
+        str_file = file.split('_')        
+        robNum = int(str_file[0])
+        unit = (file,robNum)
+        benchmarkLst.append(unit)
+    benchmarkLst = sorted(benchmarkLst,key = lambda x: x[1])
+#    print(benchmarkLst)
+        
+    with open('D:\py_code\MPDA_Preliminary\\STATS_data\\_AllRandData.pk','rb') as f:
+        randConDataDic = pickle.load(f)
+
+    with open('D:\py_code\MPDA_Preliminary\\STATS_data\\_AllStaticData.pk','rb') as f:
+        SRConDataDic = pickle.load(f)
+
+#    try:        
+#    except:
+#        print(wtf)
+#        raise Exception('das')
+
+    with open('D:\py_code\MPDA_Preliminary\\STATS_data\\_AllOneStaticData.pk','rb') as f:
+        OSRConDataDic = pickle.load(f)
+    
+    
+    print(benchmarkLst)
+    print(len(benchmarkLst))
+#    raise Exception('sad')       
+#    print(SRConDataDic)
+    
+    ind = 0
+    for unit in benchmarkLst:
+#        tableDic = dict()
+        fileName = unit[0]
+        tableDic = file        
+        print(ind)
+        
+        if ind % 26 == 0:
+            dataPro.write('\\begin{table*}\n')
+            dataPro.write('\\centering\n')
+            dataPro.write('\\tiny\n')
+            dataPro.write('\\begin{tabular}{cccccc|ccccccc}\n')
+            dataPro.write('\\hline\n')
+            dataPro.write('			robNum & taskNum & robPos & taskPos & robRate & taskRate  &SR1 &SR2 &SR1 &SR2 &MR1  &MR2 &RandCon \\\\ \n')            
+        mean_randIndex = STATS_index(randConDataDic[fileName].mean_ob, randConDataDic[fileName].mean_peri)
+        std_randIndex = STATS_index(randConDataDic[fileName].std_ob, randConDataDic[fileName].std_peri)
+        
+        SR0_ind  = STATS_index(SRConDataDic[fileName].minObjective0, SRConDataDic[fileName].period0)                
+        SR1_ind  = STATS_index(SRConDataDic[fileName].minObjective1, SRConDataDic[fileName].period1)                
+        SR2_ind  = STATS_index(SRConDataDic[fileName].minObjective2, SRConDataDic[fileName].period2)                
+
+        OSR0_ind  = STATS_index(OSRConDataDic[fileName].minObjective0, OSRConDataDic[fileName].period0)                
+        OSR1_ind  = STATS_index(OSRConDataDic[fileName].minObjective1, OSRConDataDic[fileName].period1)                
+        OSR2_ind  = STATS_index(OSRConDataDic[fileName].minObjective2, OSRConDataDic[fileName].period2)                
+
+        table_tuple = TableTuple(SR0 = SR0_ind, SR1 = SR1_ind,SR2 = SR2_ind\
+                                 ,OSR0 = OSR0_ind, OSR1 = OSR1_ind, OSR2 = OSR2_ind , Rand =  mean_randIndex)
+        dataPro.write(data2Latex(table_tuple,fileName))
+        if ind %26 == 25:
+            dataPro.write('\\end{tabular}\n')
+            dataPro.write('\\end{table*}\n')
+            dataPro.write('\n')
+        ind += 1
+        print(fileName)
+    dataPro.write('\\end{tabular}\n')
+    dataPro.write('\\end{table*}\n')
+    dataPro.write('\n')
+    dataPro.flush()
+
+    
+    print('dasd')
+    raise Exception('sad')   
     for file in files:
         tableDict = dict()
         
@@ -198,8 +270,7 @@ if __name__ == '__main__':
         tableDict['rand_ob'] = randConData[file].objective
         randIndex = STATS_index(randConData[file].objective,randConData[file].period)
         table_tuple = TableTuple(SR1 = r1Index,SR2 = r2Index,\
-                                 MR1 = r3Index, MR2 = r4Index , Rand =  randIndex)
-        
+                                 MR1 = r3Index, MR2 = r4Index , Rand =  randIndex)        
         dataPro.write(data2Latex(table_tuple,file))
     dataPro.close()
     print(g_statisticRes)

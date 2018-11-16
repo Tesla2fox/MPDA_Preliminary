@@ -4,6 +4,7 @@ Created on Wed Sep 19 20:07:19 2018
 
 @author: robot
 """
+import sys
 
 def change2EType(x):
     if x== 0:
@@ -11,9 +12,9 @@ def change2EType(x):
     else:
         base =  0.1 **10
         basePower = - 10
-        while True:
+        while True:            
             num =  x /base
-            if num < 9.999999999999993:
+            if num < 9.9999:
 #                print(num)
                 break
             basePower = basePower + 1
@@ -26,6 +27,11 @@ def change2EType(x):
 不能计算十分接近9.999999999999993的数字
 '''
 def Etype2str(x,sDigit = 4):
+    print(x)
+    if x == sys.float_info.max or x == float('inf'):
+        print(x)
+#        raise Exception('das')
+        return 'inf'
     v_num  = change2EType(x)
     xx = x/(10**v_num)    
     str_0 = str()

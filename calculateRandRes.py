@@ -110,6 +110,7 @@ def processData():
                 dic[data.fileName].append(data)
             else:
                 dic[data.fileName] = []
+                dic[data.fileName].append(data)
 #            print(wtf)
         pk_file.close()
         
@@ -149,12 +150,20 @@ def processData():
                 pk_file.close()
     pk_file = open('D:\py_code\MPDA_Preliminary\\STATS_data\\_AllRandData' +'.pk','rb')
     p  =  pickle.load(pk_file)
-    print('p',p)
+#    print('p',p)
 
 #    print(dic)
 
         
 if __name__ == '__main__':
 #    main(sys.argv[1:])
+    with open('D:\py_code\MPDA_Preliminary\\STATS_data\\_AllStaticData.pk','rb') as f:
+        SRConDataDic = pickle.load(f)
+    print(SRConDataDic)
+    print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')    
     processData()
+    print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+    with open('D:\py_code\MPDA_Preliminary\\STATS_data\\_AllStaticData.pk','rb') as f:
+        SRConDataDic = pickle.load(f)
+    print(SRConDataDic)
 
